@@ -2,8 +2,8 @@
 
 #define MAX_NODES 400
 #define PRECISION 1000000
-#define MAX_WEIGHT 50000000
-
+//#define MAX_WEIGHT 50000000
+#define MAX_WEIGHT 40
 /**
  * \mainpage This is the documentation for the implemented code of GHS Algorithm. 
  */

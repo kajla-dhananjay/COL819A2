@@ -1,0 +1,15 @@
+graph G{
+  nodesep = 10.0;
+  edge [color="#ff5555"];
+ 2 -- 4 [style=bold,label="9"];
+ 1 -- 4 [style=bold,label="18"];
+ 0 -- 5 [style=bold,label="22"];
+ 0 -- 4 [style=bold,label="25"];
+ 3 -- 4 [style=bold,label="26"];
+  3 [shape=circle];
+  5 [shape=circle];
+  0 [shape=circle];
+  1 [shape=circle];
+  4 [shape=circle];
+  2 [shape=circle];
+}

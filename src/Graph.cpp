@@ -15,7 +15,12 @@ GraphException::GraphException()
 GraphException::GraphException(int code)
 {
   switch(code)
-  { case 0: { std::cout << "File is not open" ;break; } case 1:
+  { 
+    case 0: 
+      { 
+        std::cout << "File is not open" ;break; 
+      } 
+    case 1:
       {
         std::cout << "Incorrect Labels provided" << std::endl;break;
       }
