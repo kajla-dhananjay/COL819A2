@@ -6,7 +6,7 @@
 #include<pthread.h>
 #include "dot_graph.h"
 #include "Graph.h"
-
+#include "GHSNode.h"
 
 /** @brief Given a comma seperated string, this returns a vector of integers
  * @param s Comma seperated string consisting of 3 integers : 2 vertices and 1 edge 
@@ -54,6 +54,7 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
 #ifdef Debug
   std::cerr << "Number of nodes = " << n << std::endl;
 #endif
+
   std::string s;
   while(getline(std::cin, s))
   {
@@ -102,11 +103,45 @@ std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, int &m, std::ve
   return adj_list;
 }
 
-/** @brief Initializes and runs all threads
+/** @brief Helper Function to start instances of GHSNodes
+ */
+
+void* run_thread(void * node)
+{ 
+  ((GHSNode *)node)->run();
+  pthread_exit(NULL);
+}
+
+
+/** @brief Starts all GHSNodes on different threads, passes the Final MST Back
  */
 
 Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_list)
 {
+  int n = adj_list.size(); //!< Number of Nodes
+
+  std::vector<pthread_t> threads(n); //!< Vector of threads
+  std::vector<GHSNode *> nodes; //!< Vector of all GHSNodes
+
+  for(int i = 0; i < n; i++)
+  {
+    GHSNode *temp = new GHSNode(i,adj_list[i]); //!< Create new GHSNode
+    nodes.push_back(temp);
+    // Flag : Check for failure before submission
+    int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
+    if(errcode != 0)
+    {
+      std::cerr << "Thread Creation at index : " << i << " Failed.\n Exiting.... " << std::endl;
+      exit(49);
+    }
+    //std::cout << "Node with index : " << i << " is running on thread with id : " << threads[i] << std::endl;
+  }
+  
+  // Look at the hasMst variable for all nodes
+  // Return MST of the node which has mst
+
+  return NULL;
+
   // Initializes all nodes
   // ith node will get adj_list[i] (Neighborhood set)
   // Once all threads end, we get MST from one of the threads in format F.
@@ -118,50 +153,33 @@ int main()
 {
   int n = -1,m = -1;
   std::vector<std::tuple<int, int, int> > edges;
+  
   Graph<int, int> *input_graph = GraphInput(n,m,edges);
-  std::vector<std::tuple<int, int, int> > rand_edges = edges;
-  std::random_shuffle(rand_edges.begin(), rand_edges.end());
-  Graph<int, int> *input_graph_2 = new Graph<int, int>(n,m,rand_edges);
-#ifdef Debug
-  bool connected = input_graph->IsConnected();
-  bool eq = input_graph->Equal(input_graph_2);
-  if(connected)
-  {
-    std::cerr << "Graph is Connected " << std::endl;
-  }
-  else
-  {
-    std::cerr << "Graph is not Connected " << std::endl;
-  }
-  if(eq)
-  {
-    std::cerr << "== Operator works " << std::endl;
-  }
-  else
-  {
-    std::cerr << "== Operator does not work" << std::endl;
-  }
-#endif 
   std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,m,edges);
+  
   Graph<int, int> *mst_ghs = thread_runner(adj_list);
+  
   Graph<int, int> *mst_kru = input_graph->MST_Kruskal();
-  //if(mst_ghs == mst_kru)
-  //{
-    //std::cerr << "PASS" << std::endl;
-    //exit(0);
-  //}
-  //else
-  //{
-    //std::cerr << "FAIL" << std::endl;
-    //exit(127);
-  //}
-  std::ofstream ofmst;
-  ofmst.open("mst.dot");
-  mst_kru->DrawGraph(ofmst);
-  ofmst.close();
-  std::ofstream ofs;
-  ofs.open("input_graph.dot");
-  input_graph->PrintGraph();
-  input_graph->DrawGraph(ofs);
-  ofs.close();
+  
+  if(mst_ghs == mst_kru)
+  {
+    std::cerr << "PASS" << std::endl;
+  }
+  else
+  {
+    std::cerr << "FAIL" << std::endl;
+  }
+  
+
+
+
+  //std::ofstream ofmst;
+  //ofmst.open("mst.dot");
+  //mst_kru->DrawGraph(ofmst);
+  //ofmst.close();
+  //std::ofstream ofs;
+  //ofs.open("input_graph.dot");
+  //input_graph->PrintGraph();
+  //input_graph->DrawGraph(ofs);
+  //ofs.close();
 }

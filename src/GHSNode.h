@@ -52,27 +52,33 @@ struct Network
 class GHSNode
 {
   private:
-    int nodeid;
     Network *network;
     std::string state;
+    std::string name;
     std::unordered_map<int, std::string> stat;
     std::unordered_map<int, int> nbd_list;
-    std::string name;
+    int nodeid;
     int level;
-    GHSNode *parent;
     int bestWt;
     int rec;
+    
+    bool hasMst;
+    
+    GHSNode *parent;
     GHSNode *bestNode;
     GHSNode *testNode;
-
+    
+    Graph<int, int>* mst;
+    
     int findMinEdge();
     Message msgCreater(std::vector<std::string> msg);
     void initialize();
-    Graph<int, int>* runner();
+    void runner();
     void sendMessage(int dest, Message m);
     Message* recieveMessage();
   public:
-    Graph<int, int> *run();
+    void run();
+    Graph<int, int>* getMst();
     GHSNode(int nid, std::unordered_map<int, int> neighbors);
 };
 #endif

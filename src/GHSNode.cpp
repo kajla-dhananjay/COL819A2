@@ -8,10 +8,13 @@ GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors)
   this->nbd_list = neighbors;
 }
 
-Graph<int, int> * GHSNode::run()
+void GHSNode::run()
 {
-  initialize();
-  return runner();
+#ifdef Debug
+  std::cerr << "Node id = " << nodeid << " has Thread id = " << pthread_self() << std::endl;
+#endif
+  //initialize();
+  //runner();
 }
 
 int GHSNode::findMinEdge()
@@ -64,7 +67,7 @@ void GHSNode::initialize()
   sendMessage(q, msgCreater({"connect",std::to_string(level)}));
 }
 
-Graph<int, int> * GHSNode::runner()
+void GHSNode::runner()
 {
   //while(Queue is empty)
   //{
