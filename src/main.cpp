@@ -3,6 +3,7 @@
  */
 
 #include<bits/stdc++.h>
+#include<pthread.h>
 #include "dot_graph.h"
 #include "Graph.h"
 
@@ -50,8 +51,9 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
   std::cin >> n;
   std::cin.ignore();
 
-  //std::cout << "Number of nodes = " << n << std::endl;
-
+#ifdef Debug
+  std::cerr << "Number of nodes = " << n << std::endl;
+#endif
   std::string s;
   while(getline(std::cin, s))
   {
@@ -71,6 +73,10 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
   }
   
   m = edges.size();
+  
+#ifdef Debug
+  std::cerr << "Number of edges = " << m << std::endl;
+#endif 
 
   Graph<int, int> *graph_object = new Graph<int, int>(n,edges.size(),edges);
   return graph_object;
@@ -113,6 +119,29 @@ int main()
   int n = -1,m = -1;
   std::vector<std::tuple<int, int, int> > edges;
   Graph<int, int> *input_graph = GraphInput(n,m,edges);
+  std::vector<std::tuple<int, int, int> > rand_edges = edges;
+  std::random_shuffle(rand_edges.begin(), rand_edges.end());
+  Graph<int, int> *input_graph_2 = new Graph<int, int>(n,m,rand_edges);
+#ifdef Debug
+  bool connected = input_graph->IsConnected();
+  bool eq = input_graph->Equal(input_graph_2);
+  if(connected)
+  {
+    std::cerr << "Graph is Connected " << std::endl;
+  }
+  else
+  {
+    std::cerr << "Graph is not Connected " << std::endl;
+  }
+  if(eq)
+  {
+    std::cerr << "== Operator works " << std::endl;
+  }
+  else
+  {
+    std::cerr << "== Operator does not work" << std::endl;
+  }
+#endif 
   std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,m,edges);
   Graph<int, int> *mst_ghs = thread_runner(adj_list);
   Graph<int, int> *mst_kru = input_graph->MST_Kruskal();
@@ -126,13 +155,13 @@ int main()
     //std::cerr << "FAIL" << std::endl;
     //exit(127);
   //}
-  mst_kru->PrintOutput();
   std::ofstream ofmst;
   ofmst.open("mst.dot");
   mst_kru->DrawGraph(ofmst);
   ofmst.close();
   std::ofstream ofs;
   ofs.open("input_graph.dot");
+  input_graph->PrintGraph();
   input_graph->DrawGraph(ofs);
   ofs.close();
 }

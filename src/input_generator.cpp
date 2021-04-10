@@ -147,7 +147,6 @@ int main()
   p -= 0.0000001; // This accounts for int to double probability i.e. if p = 5 and PRECISION = 10 the r=5 should count as over p 
 #ifdef Debug
   std::cerr << "Total Nodes : "<< N << std::endl;
-  std::cerr << "precision is " << p << std::endl;
 #endif
   int edge_count = 0; // Total edges in the graph
   std::set<int> edge_weights; // Set of weights of edges in the graph
@@ -155,7 +154,6 @@ int main()
   std::vector<std::set<int> > adj_list(N); // Adjacency Matrix of the graph
   std::vector<int> color(N,-1); // Represents the color of the node.
   std::unordered_map<int, int> colormap; // Represents a representative vertex for every color
-  double d = 0;
   for(size_t i = 0; i < N; i++)
   {
     for(size_t j = i+1; j < N; j++)
@@ -163,7 +161,6 @@ int main()
       int r = dist(generator); 
       if(r <= p)
       {
-        d++;
         int w = abs(distw(generator)); // Candidate weight of the edge
         adj_list[i].insert(j); // Adding a new edge
         adj_list[j].insert(i); // Adding a new edge
@@ -178,8 +175,10 @@ int main()
   }
   DFS_Util(N, edge_weights, edges, adj_list, color, colormap);
   edge_count = edges.size();
-  #ifdef Debug
-  std::cerr << "Total probability = " << d / e << " Expected Probability = " << p/PRECISION << std::endl;
+#ifdef Debug
+  std::cerr << "Total Edges : " << edge_count << std::endl;
+  std::cerr << "Max Edges : " << e << std::endl;
+  std::cerr << "Total probability = " << ((double)edge_count) / e << " Expected Probability = " << p/PRECISION << std::endl;
 #endif 
   for(auto it : edges)
   {

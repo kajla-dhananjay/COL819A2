@@ -48,7 +48,7 @@ class Graph{
     //std::vector<std::vector<U> > adjacency_matrix; //!< Adjacency matrix from node indices to Edge labels
     std::vector<std::unordered_map<int, U> > adjacency_list; //!< Adjacency list of node indices
   public:
-    bool operator == (Graph &obj);
+    bool Equal(Graph<T,U> *obj);
     Graph(int n, int m, std::vector<std::tuple<T, T, U> > weights_labels); //!< Graph Constructor to take in the graph in given format
     std::set<std::tuple<U,T,T> > GetEdgeSet();
     void DrawGraph(std::ofstream &ofs); //!< Puts the graph into ofs file

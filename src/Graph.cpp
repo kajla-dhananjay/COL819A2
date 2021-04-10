@@ -47,11 +47,9 @@ GraphException::GraphException(int code)
 }
 
 template<typename T, typename U>
-bool Graph<T, U>::operator == (Graph<T,U> &grp)
+bool Graph<T, U>::Equal(Graph<T,U> *grp)
 {
-  std::set<std::tuple<U, T, T> > es = edge_set;
-  std::set<std::tuple<U, T, T> > grp_es = grp.GetEdgeSet();
-  return (this->edge_set == grp.GetEdgeSet());
+  return (this->edge_set == grp->GetEdgeSet());
 }
 /** @brief Graph constructor for initializing graphs
  * @param n Number of Nodes
@@ -130,7 +128,7 @@ std::set<std::tuple<U,T,T> > Graph<T,U>::GetEdgeSet()
 template<typename T, typename U>
 void Graph<T, U>::DrawGraph(std::ofstream &ofs)
 {
-  GraphVz<T,U> gobject(ofs, edges_vector, weight_vector, -1, true, false);
+  GraphVz<T,U> gobject(ofs, edges_vector, weight_vector, -1, false, false);
 }
 
 
@@ -246,7 +244,7 @@ Graph<T, U>* Graph<T, U>::MST_Kruskal()
     if(color[std::get<1>(it)] != color[std::get<2>(it)])
     {
       total_cost+= std::get<0>(it);
-      mst_edges.push_back(std::make_tuple(node_labels[std::get<1>(it)], node_labels[std::get<2>(it)], std::get<0>(it)));
+      mst_edges.push_back(std::make_tuple(std::get<1>(it), std::get<2>(it), std::get<0>(it)));
       int temp = color[std::get<1>(it)];
       int ncol = color[std::get<2>(it)];
       for(auto &it : color)

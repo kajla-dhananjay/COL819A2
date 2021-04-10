@@ -36,8 +36,8 @@ GraphVz<T,U>::GraphVz(std::ofstream& ofs, const std::vector<std::pair<T, T>>& ed
   {
     ofs << "graph G{\n";
   }
-  ofs << "graph [dpi = 300];\n";
-  ofs << "  nodesep = 200;\n";
+  ofs << "graph [dpi = 300, overlap = false];\n";
+  ofs << "  nodesep = 20.0;\n";
   ofs << "  edge [color=\"#ff5555\"];\n";
   std::unordered_set<T> st;
   size_t m = edges.size();
