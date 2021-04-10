@@ -64,7 +64,7 @@ Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
   adjacency_list.resize(n);
 
 
-  if(m != weight_labels.size())
+  if(m != (int)weight_labels.size())
   {
     throw GraphException(2);
   }
@@ -97,7 +97,7 @@ Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
       node_labels.push_back(node2);
     }
     
-    if(nodes.size() > n)
+    if((int)nodes.size() > n)
     {
       throw GraphException(4);
     }
@@ -223,7 +223,7 @@ bool Graph<T, U>::IsConnected()
       }
     }
   }
-  return (visited.size() == num_nodes);
+  return ((int)visited.size() == num_nodes);
 }
 
 /** @brief Returns the Minimum Spanning Tree for the current graph

@@ -154,9 +154,9 @@ int main()
   std::vector<std::set<int> > adj_list(N); // Adjacency Matrix of the graph
   std::vector<int> color(N,-1); // Represents the color of the node.
   std::unordered_map<int, int> colormap; // Represents a representative vertex for every color
-  for(size_t i = 0; i < N; i++)
+  for(int i = 0; i < N; i++)
   {
-    for(size_t j = i+1; j < N; j++)
+    for(int j = i+1; j < N; j++)
     {
       int r = dist(generator); 
       if(r <= p)

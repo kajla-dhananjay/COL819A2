@@ -20,27 +20,34 @@ struct Message
 struct Queue
 {
   std::mutex mut;
-  std::queue<Message> q;
-  void push(Message m)
+  std::queue<Message *> q;
+  void push(Message *m)
   {
     mut.lock();
     q.push(m);
     mut.unlock();
   }
-  Message top()
+  Message *top()
   {
     mut.lock();
-    Message temp = q.front();
+    Message *temp = q.front();
     mut.unlock();
     return temp;
   }
-  Message pop()
+  Message *pop()
   {
     mut.lock();
-    Message temp = q.front();
+    Message *temp = q.front();
     q.pop();
     mut.unlock();
     return temp;
+  }
+  bool empty()
+  {
+    mut.lock();
+    bool z = q.empty(); //This should be atomic
+    mut.unlock();
+    return z;
   }
 };
 
@@ -68,17 +75,22 @@ class GHSNode
     GHSNode *bestNode;
     GHSNode *testNode;
     
+    Message *msg;
+
     Graph<int, int>* mst;
-    
+  
+    std::ofstream ofs;
+
+    void messagePrinter();
     int findMinEdge();
-    Message msgCreater(std::vector<std::string> msg);
+    Message *msgCreater(std::vector<std::string> msg);
     void initialize();
     void runner();
-    void sendMessage(int dest, Message m);
-    Message* recieveMessage();
+    void sendMessage(int dest, Message *m);
+    bool recieveMessage();
   public:
     void run();
     Graph<int, int>* getMst();
-    GHSNode(int nid, std::unordered_map<int, int> neighbors);
+    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net);
 };
 #endif

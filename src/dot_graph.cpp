@@ -54,14 +54,14 @@ GraphVz<T,U>::GraphVz(std::ofstream& ofs, const std::vector<std::pair<T, T>>& ed
     }
     ofs << "];\n";
   }
-  bool is_rooted = false;
+  //bool is_rooted = false;
   for (auto it = st.begin(); it != st.end(); it++) 
   {
     ofs << "  " << *it << " [shape=circle";
     if (root == *it) 
     {
       ofs << ",peripheries=2";
-      is_rooted = true;
+      //is_rooted = true;
     }
     ofs << "];\n";
   }

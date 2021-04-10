@@ -120,12 +120,14 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
 {
   int n = adj_list.size(); //!< Number of Nodes
 
+  Network *network = new Network();
+
   std::vector<pthread_t> threads(n); //!< Vector of threads
   std::vector<GHSNode *> nodes; //!< Vector of all GHSNodes
 
   for(int i = 0; i < n; i++)
   {
-    GHSNode *temp = new GHSNode(i,adj_list[i]); //!< Create new GHSNode
+    GHSNode *temp = new GHSNode(i,adj_list[i],network); //!< Create new GHSNode
     nodes.push_back(temp);
     // Flag : Check for failure before submission
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
@@ -137,6 +139,13 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
     //std::cout << "Node with index : " << i << " is running on thread with id : " << threads[i] << std::endl;
   }
   
+  std::vector<void *> exitStat(n);
+
+  for(int i = 0; i < n; i++)
+  {
+    pthread_join((threads[i]),&(exitStat[i]));
+  }
+  //t.join 
   // Look at the hasMst variable for all nodes
   // Return MST of the node which has mst
 
