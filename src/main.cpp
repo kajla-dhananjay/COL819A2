@@ -8,6 +8,9 @@
 #include "Graph.h"
 #include "GHSNode.h"
 
+
+/******************************* Utility Functions ***************************/
+
 /** @brief Given a comma seperated string, this returns a vector of integers
  * @param s Comma seperated string consisting of 3 integers : 2 vertices and 1 edge 
  */
@@ -40,22 +43,21 @@ std::vector<int> int_extractor(std::string s)
 }
 
 
+/******************************* IO Function **********************************/
+
 /** @brief Take in the graph as per the assignment statement
+ * @param n Number of nodes
+ * @param m Number of edges
+ * @param edges List of weighted edges
  */
 
 Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
 {
-  
-  //std::cout << "Reading INPUT" << std::endl;
-  
   std::cin >> n;
   std::cin.ignore();
 
-#ifdef Debug
-  std::cerr << "Number of nodes = " << n << std::endl;
-#endif
-
   std::string s;
+  
   while(getline(std::cin, s))
   {
     if(s == "")
@@ -74,14 +76,12 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
   }
   
   m = edges.size();
-  
-#ifdef Debug
-  std::cerr << "Number of edges = " << m << std::endl;
-#endif 
-
+ 
   Graph<int, int> *graph_object = new Graph<int, int>(n,edges.size(),edges);
+  
   return graph_object;
 }
+
 
 /** @brief Breaks down the input into adjacency list
  * @param n Number of nodes
@@ -102,6 +102,9 @@ std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, int &m, std::ve
   }
   return adj_list;
 }
+
+/******************************* GHS Runners **********************************/
+
 
 /** @brief Helper Function to start instances of GHSNodes
  */
@@ -129,14 +132,14 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
   {
     GHSNode *temp = new GHSNode(i,adj_list[i],network); //!< Create new GHSNode
     nodes.push_back(temp);
-    // Flag : Check for failure before submission
+    
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
+    
     if(errcode != 0)
     {
       std::cerr << "Thread Creation at index : " << i << " Failed.\n Exiting.... " << std::endl;
       exit(49);
     }
-    //std::cout << "Node with index : " << i << " is running on thread with id : " << threads[i] << std::endl;
   }
   
   std::vector<void *> exitStat(n);
@@ -145,30 +148,47 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
   {
     pthread_join((threads[i]),&(exitStat[i]));
   }
-  //t.join 
-  // Look at the hasMst variable for all nodes
-  // Return MST of the node which has mst
+  
+  for(auto it : nodes)
+  {
+    if(it->hasMst())
+    {
+      return it->getMst();
+    }
+  }
 
   return NULL;
 
-  // Initializes all nodes
-  // ith node will get adj_list[i] (Neighborhood set)
-  // Once all threads end, we get MST from one of the threads in format F.
-  // Convert F to Graph<int, int>
-  // return this graph
 }
+
+
+
+/******************************* Main Function ********************************/
 
 int main()
 {
+
+  /********************* Initialization ************************************/
   int n = -1,m = -1;
   std::vector<std::tuple<int, int, int> > edges;
-  
+
+  /******************** I/O ************************************************/
+
   Graph<int, int> *input_graph = GraphInput(n,m,edges);
+  
+  /******************** FormatChanges **************************************/
+  
   std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,m,edges);
+  
+  /******************** Run GHS ********************************************/
   
   Graph<int, int> *mst_ghs = thread_runner(adj_list);
   
+  /******************** Get MST Through Kruskal ****************************/
+
   Graph<int, int> *mst_kru = input_graph->MST_Kruskal();
+  
+  /******************** Check GHS Against Kruskal **************************/
   
   if(mst_ghs == mst_kru)
   {
@@ -179,16 +199,4 @@ int main()
     std::cerr << "FAIL" << std::endl;
   }
   
-
-
-
-  //std::ofstream ofmst;
-  //ofmst.open("mst.dot");
-  //mst_kru->DrawGraph(ofmst);
-  //ofmst.close();
-  //std::ofstream ofs;
-  //ofs.open("input_graph.dot");
-  //input_graph->PrintGraph();
-  //input_graph->DrawGraph(ofs);
-  //ofs.close();
 }

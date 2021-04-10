@@ -45,4 +45,6 @@ make_pdf: latex/refman.tex
 	cp latex/refman.pdf doxygen_doc.pdf
 
 clean: 
+	mv generator_input.txt xyz.tmp
 	rm -rf *.h.gch html *.dot *.o latex *.txt *.png 
+	mv xyz.tmp generator_input.txt

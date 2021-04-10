@@ -1,10 +1,17 @@
 #include<bits/stdc++.h>
 #include "Graph.h"
 
+/** @file GHSNode.h
+ * Header File for GHSNodes
+ */
+
 #ifndef _GHSNODE_H_
 #define _GHSNODE_H_
 
 #define INF std::numeric_limits<int>::max()
+
+/** @brief Provides a message interface
+ */
 
 struct Message
 {
@@ -16,6 +23,9 @@ struct Message
     msg = m;
   }
 };
+
+/** @brief Delivers a thread-safe queue
+ */
 
 struct Queue
 {
@@ -51,46 +61,55 @@ struct Queue
   }
 };
 
+/** @brief Provides Networking Functionality between nodes
+ */
+
 struct Network
 {
   std::unordered_map<int, Queue > msg_queues;
 };
 
+/** @brief Defines the structure of a single node in GHS Algorithm 
+ */ 
+
 class GHSNode
 {
   private:
-    Network *network;
-    std::string state;
-    std::string name;
-    std::unordered_map<int, std::string> stat;
-    std::unordered_map<int, int> nbd_list;
-    int nodeid;
-    int level;
-    int bestWt;
-    int rec;
     
-    bool hasMst;
-    
-    GHSNode *parent;
-    GHSNode *bestNode;
-    GHSNode *testNode;
-    
-    Message *msg;
+    Network *network; //!< Access point to the global network
 
-    Graph<int, int>* mst;
+    std::string state; //!< Represents state of the node. Possible states : [ "sleep", "find", "found"]
+    std::string name; //!< Represents name of the fragment of which current node is a part of
+    std::unordered_map<int, std::string> stat; //!< Represents state of the edge with given neighbor. Possible states : ["basic", "branch", "reject"]
+    std::unordered_map<int, int> nbd_list; //!< Adjacency list rep. of neighbors of current node.
+    int nodeid; //!< Nodeid of the current node
+    int level; //!< Level of the fragment of which current node is a part of
+    int bestWt; //!< Temp Variable
+    int rec; //!< Temp Variable
+    
+    bool hasmst; //!< Flag which rep whether the current node has all info to generate MST
+    
+    GHSNode *parent; //!< Pointer to combining edge
+    GHSNode *bestNode; //!< Temp Variable
+    GHSNode *testNode; //!< Temp Variable
+    
+    Message *msg; //!< Stores the pointer to the most recently recieved message
+
+    Graph<int, int>* mst; //!< If hasmst is true, this will be the MST of the global graph, otherwise this is NULL
   
-    std::ofstream ofs;
+    std::ofstream ofs; //!< File Stream to write errors and debug info into
 
-    void messagePrinter();
-    int findMinEdge();
-    Message *msgCreater(std::vector<std::string> msg);
-    void initialize();
-    void runner();
-    void sendMessage(int dest, Message *m);
-    bool recieveMessage();
+    void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
+    int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
+    Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
+    void initialize(); //!< Runs Algorithm 1
+    void runner(); //!< Internal function to keep GHS Node active till MST has been found
+    void sendMessage(int dest, Message *m); //!< Sends the given message to the given neighbor via network
+    bool recieveMessage(); //!< Checks to see if there is a message, if there is none, returns false, if there is a message, stores the message into msg.
   public:
-    void run();
-    Graph<int, int>* getMst();
-    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net);
+    void run(); //!< Public Function to let the thread_runner run the GHS node
+    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net); //!< Constructor to initialize the node
+    bool hasMst(); //!< Returns the boolean variable hasmst
+    Graph<int, int>* getMst(); //!< Returns the pointer to mst if stored
 };
 #endif

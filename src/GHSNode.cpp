@@ -3,52 +3,18 @@
 #include "GHSNode.h"
 using namespace std::chrono;
 
-GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net)
+void GHSNode::messagePrinter()
 {
-  this->nodeid = nid;
-  this->nbd_list = neighbors;
-  this->network = net;
-  this->ofs.open((std::to_string(nid) + ".txt").c_str());
-}
-
-void GHSNode::run()
-{
-#ifdef Debug
-  //std::cerr << "Node id = " << nodeid << " has Thread id = " << pthread_self() << std::endl;
-#endif
-
-  auto start = high_resolution_clock::now();
- 
-  //std::cerr << "A" << std::endl;
-
-
-  Message *mes = msgCreater({"Hi I am your neighbor with nodeid = " + std::to_string(nodeid)});
-  
-  //std::cerr << "F" << std::endl;
-  
-  sendMessage(1 - nodeid, mes); 
-  
-  //std::cerr << "B" << std::endl;
-  
-  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < nodeid + 2 )
+  if(msg == NULL)
   {
-    continue;
+    ofs << "No Valid Message Found" << std::endl;
+    return;
   }
-  
-  bool msgRecieved = false;
-
-  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < 10 && !msgRecieved)
+  ofs << "MESSAGE from Node : " << msg->msg[0] << std::endl;
+  for(int i = 1; i < (int)((msg->msg).size()); i++)
   {
-    if(recieveMessage())
-    {
-      messagePrinter();
-      break;
-    }
-    continue;
+    ofs << "Row " << i << " : " << (msg->msg)[i] << std::endl;
   }
-  //std::cerr << "Ended the wait after time : " << (duration_cast<seconds>(high_resolution_clock::now() - start)).count() << " for thread " << pthread_self() << std::endl;
-  //initialize();
-  //runner();
 }
 
 int GHSNode::findMinEdge()
@@ -120,20 +86,6 @@ void GHSNode::sendMessage(int dest, Message *m)
 }
 
 
-void GHSNode::messagePrinter()
-{
-  if(msg == NULL)
-  {
-    ofs << "No Valid Message Found" << std::endl;
-    return;
-  }
-  ofs << "MESSAGE from Node : " << msg->msg[0] << std::endl;
-  for(int i = 1; i < (int)((msg->msg).size()); i++)
-  {
-    ofs << "Row " << i << " : " << (msg->msg)[i] << std::endl;
-  }
-}
-
 bool GHSNode::recieveMessage()
 {
   if((network->msg_queues)[nodeid].empty())
@@ -146,4 +98,64 @@ bool GHSNode::recieveMessage()
     msg = (network->msg_queues)[nodeid].pop();
     return true;
   }
+}
+
+void GHSNode::run()
+{
+#ifdef Debug
+  //std::cerr << "Node id = " << nodeid << " has Thread id = " << pthread_self() << std::endl;
+#endif
+
+  auto start = high_resolution_clock::now();
+ 
+  //std::cerr << "A" << std::endl;
+
+
+  Message *mes = msgCreater({"Hi I am your neighbor with nodeid = " + std::to_string(nodeid)});
+  
+  //std::cerr << "F" << std::endl;
+  
+  sendMessage(1 - nodeid, mes); 
+  
+  //std::cerr << "B" << std::endl;
+  
+  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < nodeid + 2 )
+  {
+    continue;
+  }
+  
+  bool msgRecieved = false;
+
+  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < 10 && !msgRecieved)
+  {
+    if(recieveMessage())
+    {
+      messagePrinter();
+      break;
+    }
+    continue;
+  }
+  //initialize();
+  //runner();
+}
+
+
+GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net)
+{
+  this->nodeid = nid;
+  this->nbd_list = neighbors;
+  this->network = net;
+  this->ofs.open((std::to_string(nid) + ".txt").c_str());
+  this->mst = NULL;
+  this->hasmst = false;
+}
+
+bool GHSNode::hasMst()
+{
+  return hasmst;
+}
+ 
+Graph<int, int> * GHSNode::getMst()
+{
+  return mst; 
 }
