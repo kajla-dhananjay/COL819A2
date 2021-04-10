@@ -7,7 +7,6 @@
 
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
-
 /** @brief Provides Hashing for pair. 
  * Gives a Hash of Two objects of arbitrary type by using XOR.
  */
@@ -41,15 +40,17 @@ class Graph{
     std::set<T> nodes; //!< Set of node labels
     std::vector<T> node_labels; //!< Stores the mapping of node indices to node labels
     std::unordered_map<T, int> node_indices; //!< Stores the mapping of node labels to node indices
-    std::set<std::tuple<U,int, int> > edge_set; //!< Stores Edges in a sorted order
+    std::set<std::tuple<U, T, T> > edge_set; //!< Stores Edges in a sorted order
     std::unordered_map<std::pair<T,T>, U, hash_pair> edges_hashmap; //!< Stores the mapping from a pair of node labels to edge labels
     std::unordered_map<U, std::pair<T,T> > edges_reverse_hashmap; //!< Gives the adjacent pair of nodes for given edge 
     std::vector<std::pair<T,T> > edges_vector; //!< List of edges as a pair of nodes
     std::vector<U> weight_vector; //!< List of weights of edges
-    std::vector<std::vector<U> > adjacency_matrix; //!< Adjacency matrix from node indices to Edge labels
+    //std::vector<std::vector<U> > adjacency_matrix; //!< Adjacency matrix from node indices to Edge labels
     std::vector<std::unordered_map<int, U> > adjacency_list; //!< Adjacency list of node indices
   public:
+    bool operator == (Graph &obj);
     Graph(int n, int m, std::vector<std::tuple<T, T, U> > weights_labels); //!< Graph Constructor to take in the graph in given format
+    std::set<std::tuple<U,T,T> > GetEdgeSet();
     void DrawGraph(std::ofstream &ofs); //!< Puts the graph into ofs file
     void PrintGraph(); //!< Prints The various data structures of the graph
     void PrintOutput(); //!< Prints The output as requested

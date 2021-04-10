@@ -76,9 +76,12 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
   return graph_object;
 }
 
-//index -> current node
-//it.first -> neighbor
-//it.second -> weight of neighbor
+/** @brief Breaks down the input into adjacency list
+ * @param n Number of nodes
+ * @param m Number of edges
+ * @param edges List of edges with their weights
+ */
+
 std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
 {
   std::vector<std::unordered_map<int, int> > adj_list(n);
@@ -92,6 +95,9 @@ std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, int &m, std::ve
   }
   return adj_list;
 }
+
+/** @brief Initializes and runs all threads
+ */
 
 Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_list)
 {
@@ -110,24 +116,23 @@ int main()
   std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,m,edges);
   Graph<int, int> *mst_ghs = thread_runner(adj_list);
   Graph<int, int> *mst_kru = input_graph->MST_Kruskal();
-  // Define operator == by same edge
-  if(mst_ghs == mst_kru)
-  {
-    std::cerr << "PASS" << std::endl;
-    exit(0);
-  }
-  else
-  {
-    std::cerr << "FAIL" << std::endl;
-    exit(127);
-  }
-  //mst->PrintOutput();
-  //std::ofstream ofmst;
-  //ofmst.open("mst.dot");
-  //mst->DrawGraph(ofmst);
-  //ofmst.close();
-  //std::ofstream ofs;
-  //ofs.open("input_graph.dot");
-  //input_graph->DrawGraph(ofs);
-  //ofs.close();
+  //if(mst_ghs == mst_kru)
+  //{
+    //std::cerr << "PASS" << std::endl;
+    //exit(0);
+  //}
+  //else
+  //{
+    //std::cerr << "FAIL" << std::endl;
+    //exit(127);
+  //}
+  mst_kru->PrintOutput();
+  std::ofstream ofmst;
+  ofmst.open("mst.dot");
+  mst_kru->DrawGraph(ofmst);
+  ofmst.close();
+  std::ofstream ofs;
+  ofs.open("input_graph.dot");
+  input_graph->DrawGraph(ofs);
+  ofs.close();
 }

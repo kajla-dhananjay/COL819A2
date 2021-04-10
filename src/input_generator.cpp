@@ -2,8 +2,7 @@
 
 #define MAX_NODES 400
 #define PRECISION 1000000
-//#define MAX_WEIGHT 50000000
-#define MAX_WEIGHT 40
+#define MAX_WEIGHT 50000000
 /**
  * \mainpage This is the documentation for the implemented code of GHS Algorithm. 
  */
@@ -133,9 +132,21 @@ int main()
   double p; // Probability of an edge
   std::cin >> N >> p;                                                             
   std::cout << N << std::endl;
+  
+  double e = N; 
+  e *= (N-1);
+  e /= 2; // e is the max number of edges possible
+
+  if(e > MAX_WEIGHT)
+  {
+    std::cerr << "Not Enough Weights" << std::endl;
+    exit(126);
+  }
+
   p *= PRECISION; // As our range is in integers
   p -= 0.0000001; // This accounts for int to double probability i.e. if p = 5 and PRECISION = 10 the r=5 should count as over p 
 #ifdef Debug
+  std::cerr << "Total Nodes : "<< N << std::endl;
   std::cerr << "precision is " << p << std::endl;
 #endif
   int edge_count = 0; // Total edges in the graph
@@ -167,10 +178,7 @@ int main()
   }
   DFS_Util(N, edge_weights, edges, adj_list, color, colormap);
   edge_count = edges.size();
-  double e = N; 
-  e *= (N-1);
-  e /= 2; // e is the max number of edges possible
-#ifdef Debug
+  #ifdef Debug
   std::cerr << "Total probability = " << d / e << " Expected Probability = " << p/PRECISION << std::endl;
 #endif 
   for(auto it : edges)

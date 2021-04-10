@@ -5,6 +5,8 @@
 #include "dot_graph.h"
 #include "Graph.h"
 
+/** @brief Generic Graph Exceptions
+ */
 
 GraphException::GraphException()
 {
@@ -12,6 +14,9 @@ GraphException::GraphException()
   return;
 }
 
+/** @brief Specific Graph Exceptions
+ * @param code error code for the graph
+ */
 GraphException::GraphException(int code)
 {
   switch(code)
@@ -41,13 +46,23 @@ GraphException::GraphException(int code)
   exit(code);
 }
 
-
+template<typename T, typename U>
+bool Graph<T, U>::operator == (Graph<T,U> &grp)
+{
+  std::set<std::tuple<U, T, T> > es = edge_set;
+  std::set<std::tuple<U, T, T> > grp_es = grp.GetEdgeSet();
+  return (this->edge_set == grp.GetEdgeSet());
+}
+/** @brief Graph constructor for initializing graphs
+ * @param n Number of Nodes
+ * @param m Number of Edges
+ * @para weight_labels Edges in form of tuple vector
+ */ 
 template<typename T, typename U>
 Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
 {
   num_nodes = n;
   num_edges = m;
-  adjacency_matrix.resize(n, std::vector<U>(n));
   adjacency_list.resize(n);
 
 
@@ -61,8 +76,8 @@ Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
 
     T node1         = std::get<0>(it);
     T node2         = std::get<1>(it);
-    int node1_index = -1        ;
-    int node2_index = -1        ;
+    int node1_index = -1             ;
+    int node2_index = -1             ;
     U edge_label    = std::get<2>(it);
     
     if(node1 == node2)
@@ -92,12 +107,11 @@ Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
     node1_index = node_indices[node1];
     node2_index = node_indices[node2];
     
-    edge_set.insert(std::make_tuple(edge_label, node1_index, node2_index));
+    edge_set.insert(std::make_tuple(edge_label, node1, node2));
     edges_reverse_hashmap[edge_label] = std::make_pair(node1, node2);
     edges_hashmap[std::make_pair(node1, node2)] = edge_label;
     edges_vector.push_back(std::make_pair(node1, node2));
     weight_vector.push_back(edge_label);
-    adjacency_matrix[node1_index][node2_index] = edge_label;
     adjacency_list[node1_index][node2_index] = edge_label;
   
   }
@@ -105,10 +119,23 @@ Graph<T, U>::Graph(int n, int m, std::vector<std::tuple<T,T,U> > weight_labels)
 }
 
 template<typename T, typename U>
+std::set<std::tuple<U,T,T> > Graph<T,U>::GetEdgeSet()
+{
+  return this->edge_set;
+}
+/** @brief Makes the .dot files for Graphviz library
+ * @param ofs Output .dot file
+ */
+
+template<typename T, typename U>
 void Graph<T, U>::DrawGraph(std::ofstream &ofs)
 {
   GraphVz<T,U> gobject(ofs, edges_vector, weight_vector, -1, true, false);
 }
+
+
+/** @brief Prints various graph Data Structures
+ */
 
 template<typename T, typename U>
 void Graph<T, U>::PrintGraph()
@@ -143,21 +170,10 @@ void Graph<T, U>::PrintGraph()
   for(auto it : edge_set)
   {
     std::cout << "EDGE START\n" << std::endl;
-    std::cout << "First Node Label : " << node_labels[std::get<1>(it)] << " | First Node Index : " << std::get<1>(it) << std::endl;
-    std::cout << "Second Node Label : " << node_labels[std::get<2>(it)] << " | Second Node Index : " << std::get<2>(it) << std::endl; 
+    std::cout << "First Node Label : " << std::get<1>(it) << " | First Node Index : " << node_indices[std::get<1>(it)] << std::endl;
+    std::cout << "Second Node Label : " << std::get<2>(it) << " | Second Node Index : " << node_indices[std::get<2>(it)] << std::endl; 
     std::cout << "Edge Weight : " << std::get<0>(it) << std::endl;
     std::cout << "\nEdge END\n" << std::endl;
-  }
-
-  std::cout << "\nAdjacency Matrix\n" << std::endl;
-  for(size_t i = 0; i < adjacency_matrix.size(); i++)
-  {
-    std::cout << "For node " << i << " : ";
-    for(size_t j = 0; j < adjacency_matrix[i].size(); j++)
-    {
-      std::cout << adjacency_matrix[i][j] << ' ';
-    }
-    std::cout << std::endl;
   }
 
   std::cout << "\nAdjacency List\n" << std::endl;
@@ -174,6 +190,9 @@ void Graph<T, U>::PrintGraph()
   std::cout << "\n\nGraph Printing End" << std::endl;
 }
 
+/** @brief Prints Graph in the output format specified
+ */
+
 template<typename T, typename U>
 void Graph<T, U>::PrintOutput()
 {
@@ -182,6 +201,9 @@ void Graph<T, U>::PrintOutput()
     std::cout << "( " << node_labels[std::get<1>(it)] << " , " << node_labels[std::get<2>(it)] << " , " << std::get<0>(it) << " )" << std::endl;
   }
 }
+
+/** @brief Checks if the graph is connected
+ */
 
 template<typename T, typename U>
 bool Graph<T, U>::IsConnected()
@@ -205,6 +227,9 @@ bool Graph<T, U>::IsConnected()
   }
   return (visited.size() == num_nodes);
 }
+
+/** @brief Returns the Minimum Spanning Tree for the current graph
+ */
 
 template<typename T, typename U>
 Graph<T, U>* Graph<T, U>::MST_Kruskal()
