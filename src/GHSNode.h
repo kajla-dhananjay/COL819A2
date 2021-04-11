@@ -69,6 +69,15 @@ struct Network
   std::unordered_map<int, Queue > msg_queues;
 };
 
+struct IsComplete
+{
+  bool complete;
+  IsComplete()
+  {
+    complete = false;
+  }
+};
+
 /** @brief Defines the structure of a single node in GHS Algorithm 
  */ 
 
@@ -77,27 +86,26 @@ class GHSNode
   private:
     
     Network *network; //!< Access point to the global network
+    IsComplete *isc; //!< Access point to give halt signal to main thread
+    Message *msg; //!< Stores the pointer to the most recently recieved message
+    std::ofstream ofs; //!< File Stream to write errors and debug info into
 
+    std::set<std::pair<int, int> > basic, branch, reject; //!< Set containing (edge_weight, id) of edges in basic, branch and reject state respectively
+    
     std::string state; //!< Represents state of the node. Possible states : [ "sleep", "find", "found"]
     std::string name; //!< Represents name of the fragment of which current node is a part of
     std::unordered_map<int, std::string> stat; //!< Represents state of the edge with given neighbor. Possible states : ["basic", "branch", "reject"]
-    std::set<std::pair<int, int> > basic, branch, reject; //!< Set containing (edge_weight, id) of edges in basic, branch and reject state respectively
     std::unordered_map<int, int> nbd_list; //!< Adjacency list rep. of neighbors of current node.
+    
     int nodeid; //!< Nodeid of the current node
     int level; //!< Level of the fragment of which current node is a part of
     int best_edge; //!< Temp Variable
     int best_weight; //!< Temp Variable
-    int test_edge;
-    int find_count;
-    int in_branch;
+    int test_edge; //!< Temp Variable
+    int find_count; //!< Temp Variable 
+    int in_branch; //!< Temp Variable 
 
-    bool hasmst; //!< Flag which rep whether the current node has all info to generate MST
-    
-    Message *msg; //!< Stores the pointer to the most recently recieved message
 
-    Graph<int, int>* mst; //!< If hasmst is true, this will be the MST of the global graph, otherwise this is NULL
-  
-    std::ofstream ofs; //!< File Stream to write errors and debug info into
 
     /************Message Handlers*****************/
 
@@ -111,25 +119,32 @@ class GHSNode
 
     /*********************************************/
 
-    void test();
+    void initialize(); //!< Runs Algorithm 1
+    void test();       
     void report();
     void changeRoot();
 
-    void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
-    void initialize(); //!< Runs Algorithm 1
-    void runner(); //!< Internal function to keep GHS Node active till MST has been found
-    void sendMessage(int dest, Message *m); //!< Sends the given message to the given neighbor via network
+    /********************************************/
+
+    void runner(); //!< REPL type function 
     
-    int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
+    /********************************************/
+
+    void sendMessage(int dest, Message *m); //!< Sends the given message to the given neighbor via network
     bool recieveMessage(); //!< Checks to see if there is a message, if there is none, returns false, if there is a message, stores the message into msg.
   
+    /********************************************/
+    
+    int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
     Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
+    void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
   
   public:
-    void printNode(std::string id); //!< Prints the node into ofs
+    
+    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom); //!< Constructor to initialize the node
     void run(); //!< Public Function to let the thread_runner run the GHS node
-    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net); //!< Constructor to initialize the node
-    bool hasMst(); //!< Returns the boolean variable hasmst
-    Graph<int, int>* getMst(); //!< Returns the pointer to mst if stored
+    
+    void printNode(std::string id); //!< Prints the node into ofs
+    
 };
 #endif

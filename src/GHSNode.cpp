@@ -6,55 +6,54 @@ using namespace std::chrono;
 void GHSNode::handleConnect()
 {
   std::vector<std::string> mg = (msg->msg);
-  int q = std::stoi(mg[0]);
-  int l = std::stoi(mg[2]);
-  if(state == "sleep")
+  int q = std::stoi(mg[0]); //!< edge j
+  int l = std::stoi(mg[2]); //!< L
+  if(state == "sleep")      //!< if SN = Sleeping 
   {
     initialize();
   }
-  if(l < level)
+  if(l < level) //!< If L < LN
   {
-    if(stat[q] == "basic")
+    if(stat[q] == "basic") 
     {
       basic.erase(basic.find(std::make_pair(nbd_list[q],q)));
     }
     else if(stat[q] == "reject")
     {
-      std::cerr << "Something Fishy here" << std::endl;
       reject.erase(reject.find(std::make_pair(nbd_list[q],q)));
     }
     
-    stat[q] = "branch";
+    stat[q] = "branch"; //!< SE(j) <- Branch
     branch.insert(std::make_pair(nbd_list[q],q));
 
-    std::vector<std::string> m;
-    m.push_back("initiate");
-    m.push_back(std::to_string(level));
-    m.push_back(name);
-    m.push_back(state);
+    std::vector<std::string> m; 
+    m.push_back("initiate"); //!< Initiate()
+    m.push_back(std::to_string(level)); //!< LN
+    m.push_back(name); //!< FN
+    m.push_back(state); //!< SN
 
-    sendMessage(q, msgCreater(m));
+    sendMessage(q, msgCreater(m)); //!< send Initiate(LN, FN, SN) on edge j 
     
-    if(state == "find")
+    if(state == "find") //!< if SN = Find then
     {
-      find_count++;
+      find_count++; //!< find-count <- find-count +1
     }
     
     free(msg);
     msg = NULL;
   }
-  else if(stat[q] == "basic")
+  else if(stat[q] == "basic") //!< else if SE(j) = Basic
   {
-    sendMessage(nodeid, msg);
+    sendMessage(nodeid, msg); //!< place receieved message on end of queue
   }
   else
   {
-    std::vector<std::string> st;
-    st.push_back("initiate");
-    st.push_back(std::to_string(level+1));
-    st.push_back(std::to_string(nbd_list[q]));
-    st.push_back("find");
-    sendMessage(q, msgCreater(st));
+    std::vector<std::string> st; 
+    st.push_back("initiate"); //!< Initiate()
+    st.push_back(std::to_string(level+1)); //!< LN +1
+    st.push_back(std::to_string(nbd_list[q]));//!< w(j)
+    st.push_back("find");//!< Find
+    sendMessage(q, msgCreater(st)); //! send Initiate(LN+1, w(j), Find) on edge j
     free(msg);
     msg = NULL;
   }
@@ -63,36 +62,36 @@ void GHSNode::handleConnect()
 void GHSNode::handleInitiate()
 {
   std::vector<std::string> mg = (msg->msg);
-  int q = std::stoi(mg[0]);
-  int l = std::stoi(mg[2]);
-  std::string nm = mg[3];
-  std::string st = mg[4];
-  level = l;
-  name = nm;
-  state = st;
-  in_branch = q;
-  best_edge = -1;
-  best_weight = INF;
-  for(auto it : stat)
+  int q = std::stoi(mg[0]); //!< edge j
+  int l = std::stoi(mg[2]); //!< L
+  std::string nm = mg[3]; //!< F
+  std::string sta = mg[4]; //!< S
+  level = l; //!< LN <- L
+  name = nm; //!< FN <- F
+  state = sta; //!< SN <- S
+  in_branch = q; //!< in-branch <- j
+  best_edge = -1; //!< best-edge <- nil
+  best_weight = INF; //!< best-wt <- infinity
+  for(auto it : stat) //!< forall
   {
-    if(it.first == q || it.second != "branch")
+    if(it.first == q || it.second != "branch") 
     {
       continue;
-    }
-    std::vector<std::string> st;
-    st.push_back("initiate");
-    st.push_back(std::to_string(level));
-    st.push_back(name);
-    st.push_back(state);
-    sendMessage(it.first, msgCreater(st));
-    if(state == "find")
+    }//!< i != j and SE(i) = branch
+    std::vector<std::string> st; 
+    st.push_back("initiate"); //!< Initiate()
+    st.push_back(std::to_string(level)); //!< L
+    st.push_back(name); //!< F
+    st.push_back(state); //!< S
+    sendMessage(it.first, msgCreater(st)); //!< send Initiate(L, F, S) on edge i
+    if(state == "find") //!< if S = Find 
     {
-      find_count++;
+      find_count++; //!< find-count <- find-count + 1
     }
   }
-  if(state == "find")
+  if(state == "find") //!< if S = Find
   {
-    test();
+    test(); //!< execute procedure test
   }
   free(msg);
   msg = NULL;
@@ -101,42 +100,42 @@ void GHSNode::handleInitiate()
 void GHSNode::handleTest()
 {
   std::vector<std::string> mg = (msg->msg);
-  if(state == "sleep")
+  int q = std::stoi(mg[0]); //!< edge j 
+  if(state == "sleep") //!< If SN = Sleeping 
   {
-    initialize();
+    initialize(); //!< execute procedure wakeup
   }
-  int q = std::stoi(mg[0]);
-  int l = std::stoi(mg[2]);
-  std::string nm = mg[3];
-  if(l > level)
+  int l = std::stoi(mg[2]); //!< L
+  std::string nm = mg[3]; //!< F
+  if(l > level) //!< L > LN
   {
-    sendMessage(nodeid, msg);
+    sendMessage(nodeid, msg); //!< place recieved message on end of queue
   }
-  else if(nm != name)
+  else if(nm != name) //!< F != FN
   {
     std::vector<std::string> st;
-    st.push_back("accept");
-    sendMessage(q,msgCreater(st));
-    free(msg);
+    st.push_back("accept"); //!< Accept()
+    sendMessage(q,msgCreater(st)); //!< Send Accept on edge j
+    free(msg); 
     msg = NULL;
   }
   else
   {
-    if(stat[q] == "basic")
+    if(stat[q] == "basic") //!< if SE(j) = Basic
     {
       basic.erase(basic.find(std::make_pair(nbd_list[q],q)));
-      stat[q] = "reject";
+      stat[q] = "reject"; //!< SE(j) <- Rejected
       reject.insert(std::make_pair(nbd_list[q],q));
     }
-    if(test_edge != q)
+    if(test_edge != q) //!< test-edge != j
     {
       std::vector<std::string> st;
-      st.push_back("reject");
-      sendMessage(q, msgCreater(st));
+      st.push_back("reject"); //!< Reject()
+      sendMessage(q, msgCreater(st)); //!< send Reject on edge j
     }
     else
     {
-      test();
+      test(); //!< execute procedure test
     }
     free(msg);
     msg = NULL;
@@ -146,55 +145,63 @@ void GHSNode::handleTest()
 void GHSNode::handleAccept()
 {
   std::vector<std::string> mg = (msg->msg);
-  int q = std::stoi(mg[0]);
-  test_edge = -1;
-  if(best_weight > nbd_list[q])
+  int q = std::stoi(mg[0]); //!< edge j
+  test_edge = -1; //!< test-edge <- nil
+  if(nbd_list[q] < best_weight) //!< w(j) < best-wt 
   {
-    best_edge = q;
-    best_weight = nbd_list[q];
+    best_edge = q; //!< best-edge <- j
+    best_weight = nbd_list[q]; //!< best-wt <- w(j)
   }
   free(msg);
   msg = NULL;
-  report();
+  report(); //!< execute procedure report()
 }
 
 void GHSNode::handleReject()
 {
   std::vector<std::string> mg = (msg->msg);
-  int q = std::stoi(mg[0]);
-  if(stat[q] == "basic")
+  int q = std::stoi(mg[0]); //!< edge j
+  if(stat[q] == "basic") //!< if SE(j) = Basic 
   {
     basic.erase(basic.find(std::make_pair(nbd_list[q],q)));
-    stat[q] = "reject";
+    stat[q] = "reject"; //!< SE(j) = Reject
     reject.insert(std::make_pair(nbd_list[q],q));
   }
   free(msg);
   msg = NULL;
-  test();
+  test(); //!< execute procedure test()
 }
 
 void GHSNode::handleReport()
 {
   std::vector<std::string> mg = (msg->msg);
-  int q = std::stoi(mg[0]);
-  int w = std::stoi(mg[2]);
-  if(q != in_branch)
+  int q = std::stoi(mg[0]); //!< edge j
+  int w = std::stoi(mg[2]); //!< w
+  if(q != in_branch) //!< if j != in-branch
   {
-
-  }
-  else if(state == "find")
-  {
-    sendMessage(nodeid, msg);
-  }
-  else if(w > best_weight)
-  {
-    changeRoot();
+    find_count--; //!< find-count <- find-count - 1
+    if(w < best_weight) //!< w < best-wt
+    {
+      best_weight = w; //!< best-wt <- w
+      best_edge = q; //!< best-edge <- j
+    }
     free(msg);
     msg = NULL;
+    report(); //!< execute procedure report()
   }
-  else if(w == best_weight && w == INF)
+  else if(state == "find") //!< SN = Find
   {
-    //HALT
+    sendMessage(nodeid, msg); //!< place recieved message on end of queue
+  }
+  else if(w > best_weight) //!< w > best-wt
+  {
+    free(msg);
+    msg = NULL;
+    changeRoot(); //!< execute procedure change-root()
+  }
+  else if(w == best_weight && w == INF) //!< w = best-wt = infinity 
+  {
+    isc->complete = true; //!< halt
     free(msg);
     msg = NULL;
   }
@@ -204,23 +211,23 @@ void GHSNode::handleChangeroot()
 {
   free(msg);
   msg = NULL;
-  changeRoot();
+  changeRoot(); //execute procedure change-root()
 }
 
 void GHSNode::changeRoot()
 {
-  if(stat[best_edge] == "branch")
+  if(stat[best_edge] == "branch") //!< SE(best-edge) = Branch
   {
     std::vector<std::string> st;
-    st.push_back("changeRoot");
-    sendMessage(best_edge, msgCreater(st));
+    st.push_back("changeRoot"); //!< Change-root()
+    sendMessage(best_edge, msgCreater(st)); //!< send Change-root() on best-edge
   }
   else
   {
     std::vector<std::string> st;
-    st.push_back("connect");
-    st.push_back(std::to_string(level));
-    sendMessage(best_edge, msgCreater(st));
+    st.push_back("connect"); //!< Connect()
+    st.push_back(std::to_string(level)); //!< LN
+    sendMessage(best_edge, msgCreater(st)); //!< send Connect(LN) on best-edge
     if(stat[best_edge] == "basic")
     {
       basic.erase(basic.find(std::make_pair(nbd_list[best_edge], best_edge)));
@@ -229,37 +236,38 @@ void GHSNode::changeRoot()
     {
       reject.erase(reject.find(std::make_pair(nbd_list[best_edge], best_edge)));
     }
-    stat[best_edge] = "branch";
+    stat[best_edge] = "branch"; //!< SE(best-edge) <- Branch
     branch.insert(std::make_pair(nbd_list[best_edge], best_edge));
   }
 }
 
 void GHSNode::report()
 {
-  if(find_count == 0 && test_edge == -1)
+  if(find_count == 0 && test_edge == -1) //!< if find-count = 0 and test-edge = nil
   {
-    state = "found";
-    std::vector<std::string> st;
-    st.push_back("report");
-    st.push_back(std::to_string(best_weight));
-    sendMessage(in_branch,msgCreater(st));
+    state = "found"; //!< SN <- Found
+    std::vector<std::string> st; 
+    st.push_back("report"); //!< Report()
+    st.push_back(std::to_string(best_weight)); //!< best-wt
+    sendMessage(in_branch,msgCreater(st)); //!< send Report(best-wt) on in-branch
   }
 }
 
 void GHSNode::test()
 {
-  test_edge = findMinEdge();
-  if(test_edge != -1)
+  test_edge = findMinEdge(); //!< test-edge <- nil if no basic edges 
+  //!< test-edge <- the minimum-weight adjacent edge in state Basic
+  if(test_edge != -1) //!< If there are adjacent edges in the state Basic
   {
     std::vector<std::string> st;
-    st.push_back("test");
-    st.push_back(std::to_string(level));
-    st.push_back(name);
-    sendMessage(test_edge, msgCreater(st));
+    st.push_back("test"); //!< Test()
+    st.push_back(std::to_string(level)); //!< LN
+    st.push_back(name); //!< FN
+    sendMessage(test_edge, msgCreater(st)); //!< send Test(LN, FN) on test-edge
   }
-  else
+  else //!< Else test-edge <- nil (by default)
   {
-    report();
+    report(); //!< execute procedure report()
   }
 }
 
@@ -301,76 +309,80 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
 
 void GHSNode::initialize()
 {
-  // Label all edges basic
-
   for(auto it : nbd_list)
   {
     stat[it.first] = "basic";
-    basic.insert(std::make_pair(nbd_list[it.first],it.first));
+    basic.insert(std::make_pair(it.second, it.first));
   }
 
-  // Find pq as the least weight edge from p
-
-  int q = findMinEdge();
+  int q = findMinEdge(); 
   basic.erase(basic.find(std::make_pair(nbd_list[q],q)));
+  stat[q] = "branch"; //!< SE(m) <- Branch;
   branch.insert(std::make_pair(nbd_list[q],q));
-  stat[q] = "branch";
-  level = 0;
-  state = "found";
+  level = 0; //!< LN <- 0
+  state = "found"; //!< SN <- Found
+  find_count = 0; //!< Find-count <- 0
   std::vector<std::string> st;
   st.push_back("connect");
   st.push_back(std::to_string(level));
-  sendMessage(q, msgCreater(st));
+  sendMessage(q, msgCreater(st)); //!< send Connect(0) 
 }
 
 void GHSNode::runner()
 {
-  while(!recieveMessage())
+  while(!(isc->complete))
   {
-    continue;
-  }
-  if((msg->msg).size() < 2)
-  {
-    if((msg->msg).size() == 0)
+    while(!recieveMessage())
     {
-      std::cerr << "Completely Empty Message Sent" << std::endl;
+      continue;
+    }
+    if((msg->msg).size() < 2)
+    {
+      if((msg->msg).size() == 0)
+      {
+        std::cerr << "Completely Empty Message Sent" << std::endl;
+      }
+      else
+      {
+        std::cerr << "Empty Message Sent from node : " << (msg->msg)[0] << std::endl;
+      }
+      exit(46);
+    }
+    
+    std::string mval = (msg->msg)[1];
+    if(mval == "connect")
+    {
+      handleConnect();
+    }
+    else if(mval == "initiate")
+    {
+      handleInitiate();
+    }
+    else if(mval == "test")
+    {
+      handleTest();
+    }
+    else if(mval == "accept")
+    {
+      handleAccept();
+    }
+    else if(mval == "reject")
+    {
+      handleReject();
+    }
+    else if(mval == "report")
+    {
+      handleReport();
+    }
+    else if(mval == "changeroot")
+    {
+      handleChangeroot();
     }
     else
     {
-      std::cerr << "Empty Message Sent from node : " << (msg->msg)[0] << std::endl;
+      std::cerr << "Message Of Invalid Type" << std::endl;
     }
-    exit(46);
   }
-  std::string mval = (msg->msg)[1];
-  if(mval == "connect")
-  {
-    handleConnect();
-  }
-  else if(mval == "initiate")
-  {
-    handleInitiate();
-  }
-  else if(mval == "test")
-  {
-    handleTest();
-  }
-  else if(mval == "reject")
-  {
-    handleReject();
-  }
-  else if(mval == "accept")
-  {
-    handleAccept();
-  }
-  else if(mval == "report")
-  {
-    handleReport();
-  }
-  else if(mval == "changeroot")
-  {
-    handleChangeroot();
-  }
-  runner();
 }
 
 void GHSNode::sendMessage(int dest, Message *m)
@@ -401,7 +413,6 @@ void GHSNode::printNode(std::string id)
   ofs << "State : " << state << std::endl;
   ofs << "Name : " << name << std::endl;
   ofs << "Level : " << level << std::endl;
-  ofs << "hasmst : " << hasmst << std::endl;
 
   ofs << "\nEdge States : " << std::endl << std::endl;
 
@@ -416,39 +427,17 @@ void GHSNode::printNode(std::string id)
 
 void GHSNode::run()
 {
-#ifdef Debug
-  //std::cerr << "Node id = " << nodeid << " has Thread id = " << pthread_self() << std::endl;
-#endif
-
-  //auto start = std::chrono::high_resolution_clock::now();
-
   initialize();
-  //while(!recieveMessage() && duration_cast<seconds>(std::chrono::high_resolution_clock::now() - start).count() < 10)
-  //{
-    //continue;
-  //}
-  //messagePrinter();
   runner();
 }
 
-
-GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net)
+GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom)
 {
   this->nodeid = nid;
   this->nbd_list = neighbors;
   this->network = net;
   this->ofs.open((std::to_string(nid) + ".txt").c_str());
-  this->mst = NULL;
-  this->hasmst = false;
   this->state = "sleep";
+  this->isc = iscom;
 }
 
-bool GHSNode::hasMst()
-{
-  return hasmst;
-}
- 
-Graph<int, int> * GHSNode::getMst()
-{
-  return mst; 
-}

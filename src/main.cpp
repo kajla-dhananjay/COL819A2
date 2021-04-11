@@ -124,13 +124,15 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
   int n = adj_list.size(); //!< Number of Nodes
 
   Network *network = new Network();
+  IsComplete *isc = new IsComplete();
+
 
   std::vector<pthread_t> threads(n); //!< Vector of threads
   std::vector<GHSNode *> nodes; //!< Vector of all GHSNodes
 
   for(int i = 0; i < n; i++)
   {
-    GHSNode *temp = new GHSNode(i,adj_list[i],network); //!< Create new GHSNode
+    GHSNode *temp = new GHSNode(i,adj_list[i],network,isc); //!< Create new GHSNode
     nodes.push_back(temp);
     
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
@@ -144,19 +146,25 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
   
   std::vector<void *> exitStat(n);
 
-  for(int i = 0; i < n; i++)
+  while(!(isc->complete))
   {
-    pthread_join((threads[i]),&(exitStat[i]));
-  }
-  
-  for(auto it : nodes)
-  {
-    if(it->hasMst())
-    {
-      return it->getMst();
-    }
+    continue;
   }
 
+  //for(int i = 0; i < n; i++)
+  //{
+    //pthread_join((threads[i]),&(exitStat[i]));
+  //}
+  
+  //for(auto it : nodes)
+  //{
+    //if(it->hasMst())
+    //{
+      //return it->getMst();
+    //}
+  //}
+
+  //Take "branch edges here"
   return NULL;
 
 }
