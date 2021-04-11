@@ -143,7 +143,7 @@ class GHSNode
     
     GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom); //!< Constructor to initialize the node
     void run(); //!< Public Function to let the thread_runner run the GHS node
-    
+    std::vector<int> getMSTEdges();
     void printNode(std::string id); //!< Prints the node into ofs
     
 };

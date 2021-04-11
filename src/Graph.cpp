@@ -196,7 +196,7 @@ void Graph<T, U>::PrintOutput()
 {
   for(auto it : edge_set)
   {
-    std::cout << "( " << node_labels[std::get<1>(it)] << " , " << node_labels[std::get<2>(it)] << " , " << std::get<0>(it) << " )" << std::endl;
+    std::cout << "(" << std::get<1>(it) << " , " << std::get<2>(it) << ", " << std::get<0>(it) << ")" << std::endl;
   }
 }
 

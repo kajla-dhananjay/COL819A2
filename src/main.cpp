@@ -4,10 +4,11 @@
 
 #include<bits/stdc++.h>
 #include<pthread.h>
-#include "dot_graph.h"
-#include "Graph.h"
 #include "GHSNode.h"
 
+/** @brief Provides Hashing for pair. 
+ * Gives a Hash of Two objects of arbitrary type by using XOR.
+ */
 
 /******************************* Utility Functions ***************************/
 
@@ -51,7 +52,7 @@ std::vector<int> int_extractor(std::string s)
  * @param edges List of weighted edges
  */
 
-Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
+void GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
 {
   std::cin >> n;
   std::cin.ignore();
@@ -76,10 +77,6 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
   }
   
   m = edges.size();
- 
-  Graph<int, int> *graph_object = new Graph<int, int>(n,edges.size(),edges);
-  
-  return graph_object;
 }
 
 
@@ -89,18 +86,19 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
  * @param edges List of edges with their weights
  */
 
-std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, std::vector<std::tuple<int, int, int> > &edges)
+void ThreadAdjList(int n, std::vector<std::tuple<int, int, int> > &edges, std::vector<std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
 {
-  std::vector<std::unordered_map<int, int> > adj_list(n);
+  adj_list.resize(n);
   for(auto it : edges)
   {
     int node1 = std::get<0>(it);
     int node2 = std::get<1>(it);
     int weight = std::get<2>(it);
-    adj_list[node1][node2] = weight;
-    adj_list[node2][node1] = weight;
+    (adj_list[node1])[node2] = weight;
+    (adj_list[node2])[node1] = weight;
+    mp[weight] = std::make_pair(node1, node2);
   }
-  return adj_list;
+  return;
 }
 
 /******************************* GHS Runners **********************************/
@@ -117,9 +115,10 @@ void* run_thread(void * node)
 
 
 /** @brief Starts all GHSNodes on different threads, passes the Final MST Back
+ * @param adj_list Adjacency list of the graph
  */
 
-Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_list)
+std::set<std::tuple <int, int, int> > thread_runner(std::vector<std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
 {
   int n = adj_list.size(); //!< Number of Nodes
 
@@ -151,24 +150,28 @@ Graph<int, int> *thread_runner(std::vector<std::unordered_map<int, int> > &adj_l
     continue;
   }
 
-  //for(int i = 0; i < n; i++)
-  //{
-    //pthread_join((threads[i]),&(exitStat[i]));
-  //}
-  
-  //for(auto it : nodes)
-  //{
-    //if(it->hasMst())
-    //{
-      //return it->getMst();
-    //}
-  //}
-
-  //Take "branch edges here"
-  return NULL;
-
+  std::set<std::tuple <int, int, int > > ans;
+  for(auto it : nodes)
+  {
+    std::vector<int> v = it-> getMSTEdges();
+    for(auto jt : v)
+    {
+      ans.insert(std::make_tuple(jt, mp[jt].first, mp[jt].second));
+    }
+  }
+  return ans;
 }
 
+void PrintOutput(std::set<std::tuple<int, int, int> >& out)
+{
+  for(auto it : out)
+  {
+    int node1 = std::get<1>(it);
+    int node2 = std::get<2>(it);
+    int weight = std::get<0>(it);
+    std::cout << "(" << node1 << " , " << node2 << ", " << weight << ")" << std::endl; 
+  }
+}
 
 
 /******************************* Main Function ********************************/
@@ -177,42 +180,24 @@ int main()
 {
 
   /********************* Initialization ************************************/
+  
   int n = -1,m = -1;
   std::vector<std::tuple<int, int, int> > edges;
+  std::vector<std::unordered_map<int, int> > adj_list;
+  std::unordered_map<int, std::pair<int, int > > mp;
 
   /******************** I/O ************************************************/
 
-  Graph<int, int> *input_graph = GraphInput(n,m,edges);
-  
+  GraphInput(n,m,edges);
+
   /******************** FormatChanges **************************************/
-  
-  std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,edges);
-  
+
+  ThreadAdjList(n, edges, adj_list, mp);
+
   /******************** Run GHS ********************************************/
   
-  Graph<int, int> *mst_ghs = thread_runner(adj_list);
-  
-  /******************** Get MST Through Kruskal ****************************/
+  std::set<std::tuple<int, int, int> > out = thread_runner(adj_list, mp);
 
-  Graph<int, int> *mst_kru = input_graph->MST_Kruskal();
-  
-  /******************** Check GHS Against Kruskal **************************/
-  
-  if(mst_ghs == mst_kru)
-  {
-    std::cerr << "PASS" << std::endl;
-  }
-  else
-  {
-    std::cerr << "FAIL" << std::endl;
-  }
+  PrintOutput(out);
 
-  std::ofstream ofs;
-  ofs.open("input_graph.dot");
-  input_graph->DrawGraph(ofs);
-  ofs.close();
-  std::ofstream ofsmst;
-  ofsmst.open("mst.dot");
-  (input_graph->MST_Kruskal())->DrawGraph(ofsmst);
-  ofsmst.close();
-}
+ }

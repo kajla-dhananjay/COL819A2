@@ -430,6 +430,16 @@ void GHSNode::run()
   initialize();
   runner();
 }
+    
+std::vector<int> GHSNode::getMSTEdges()
+{
+  std::vector<int> v;
+  for(auto it : branch)
+  {
+    v.push_back(it.first);
+  }
+  return v;
+}
 
 GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom)
 {
