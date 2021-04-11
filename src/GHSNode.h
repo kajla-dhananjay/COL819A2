@@ -117,7 +117,7 @@ class GHSNode
 
     void test();
     void report();
-
+    void changeRoot();
 
     void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
     void initialize(); //!< Runs Algorithm 1

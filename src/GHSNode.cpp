@@ -153,9 +153,9 @@ void GHSNode::handleAccept()
     best_edge = q;
     best_weight = nbd_list[q];
   }
-  report();
   free(msg);
   msg = NULL;
+  report();
 }
 
 void GHSNode::handleReject()
@@ -168,9 +168,83 @@ void GHSNode::handleReject()
     stat[q] = "reject";
     reject.insert(std::make_pair(nbd_list[q],q));
   }
+  free(msg);
+  msg = NULL;
   test();
 }
 
+void GHSNode::handleReport()
+{
+  std::vector<std::string> mg = (msg->msg);
+  int q = std::stoi(mg[0]);
+  int w = std::stoi(mg[2]);
+  if(q != in_branch)
+  {
+
+  }
+  else if(state == "find")
+  {
+    sendMessage(nodeid, msg);
+  }
+  else if(w > best_weight)
+  {
+    changeRoot();
+    free(msg);
+    msg = NULL;
+  }
+  else if(w == best_weight && w == INF)
+  {
+    //HALT
+    free(msg);
+    msg = NULL;
+  }
+}
+
+void GHSNode::handleChangeroot()
+{
+  free(msg);
+  msg = NULL;
+  changeRoot();
+}
+
+void GHSNode::changeRoot()
+{
+  if(stat[best_edge] == "branch")
+  {
+    std::vector<std::string> st;
+    st.push_back("changeRoot");
+    sendMessage(best_edge, msgCreater(st));
+  }
+  else
+  {
+    std::vector<std::string> st;
+    st.push_back("connect");
+    st.push_back(std::to_string(level));
+    sendMessage(best_edge, msgCreater(st));
+    if(stat[best_edge] == "basic")
+    {
+      basic.erase(basic.find(std::make_pair(nbd_list[best_edge], best_edge)));
+    }
+    if(stat[best_edge] == "reject")
+    {
+      reject.erase(reject.find(std::make_pair(nbd_list[best_edge], best_edge)));
+    }
+    stat[best_edge] = "branch";
+    branch.insert(std::make_pair(nbd_list[best_edge], best_edge));
+  }
+}
+
+void GHSNode::report()
+{
+  if(find_count == 0 && test_edge == -1)
+  {
+    state = "found";
+    std::vector<std::string> st;
+    st.push_back("report");
+    st.push_back(std::to_string(best_weight));
+    sendMessage(in_branch,msgCreater(st));
+  }
+}
 
 void GHSNode::test()
 {
