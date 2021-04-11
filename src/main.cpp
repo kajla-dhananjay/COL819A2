@@ -89,7 +89,7 @@ Graph<int, int>* GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int
  * @param edges List of edges with their weights
  */
 
-std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
+std::vector<std::unordered_map<int, int> > ThreadAdjList(int &n, std::vector<std::tuple<int, int, int> > &edges)
 {
   std::vector<std::unordered_map<int, int> > adj_list(n);
   for(auto it : edges)
@@ -178,7 +178,7 @@ int main()
   
   /******************** FormatChanges **************************************/
   
-  std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,m,edges);
+  std::vector<std::unordered_map<int, int> > adj_list = ThreadAdjList(n,edges);
   
   /******************** Run GHS ********************************************/
   
@@ -198,5 +198,13 @@ int main()
   {
     std::cerr << "FAIL" << std::endl;
   }
-  
+
+  std::ofstream ofs;
+  ofs.open("input_graph.dot");
+  input_graph->DrawGraph(ofs);
+  ofs.close();
+  std::ofstream ofsmst;
+  ofsmst.open("mst.dot");
+  (input_graph->MST_Kruskal())->DrawGraph(ofsmst);
+  ofsmst.close();
 }

@@ -2,7 +2,6 @@
 
 #define MAX_NODES 400
 #define PRECISION 1000000
-#define MAX_WEIGHT 50000000
 /**
  * \mainpage This is the documentation for the implemented code of GHS Algorithm. 
  */
@@ -21,6 +20,10 @@
  * Total number of vertices(N) should be less than MAX_NODES
  * Probaility(p) should be between 0 and 1
  */
+
+
+int MAX_WEIGHT = 50;
+
 bool checkinputs(int N, double p)
 {
   if(!(p >= 0 && p <= 1)) //Checks if p is a valid probability 
@@ -136,6 +139,8 @@ int main()
   double e = N; 
   e *= (N-1);
   e /= 2; // e is the max number of edges possible
+
+  int MAX_WEIGHT = 2 * e;
 
   if(e > MAX_WEIGHT)
   {

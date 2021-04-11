@@ -99,14 +99,30 @@ class GHSNode
   
     std::ofstream ofs; //!< File Stream to write errors and debug info into
 
+    /************Message Handlers*****************/
+
+    void handleConnect();
+    void handleInitiate();
+    void handleTest();
+    void handleReject();
+    void handleAccept();
+    void handleReport();
+    void handleChangeroot();
+
+    /*********************************************/
+
     void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
-    int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
-    Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
     void initialize(); //!< Runs Algorithm 1
     void runner(); //!< Internal function to keep GHS Node active till MST has been found
     void sendMessage(int dest, Message *m); //!< Sends the given message to the given neighbor via network
+    
+    int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
     bool recieveMessage(); //!< Checks to see if there is a message, if there is none, returns false, if there is a message, stores the message into msg.
+  
+    Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
+  
   public:
+    void printNode(std::string id); //!< Prints the node into ofs
     void run(); //!< Public Function to let the thread_runner run the GHS node
     GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net); //!< Constructor to initialize the node
     bool hasMst(); //!< Returns the boolean variable hasmst

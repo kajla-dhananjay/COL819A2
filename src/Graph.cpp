@@ -128,7 +128,7 @@ std::set<std::tuple<U,T,T> > Graph<T,U>::GetEdgeSet()
 template<typename T, typename U>
 void Graph<T, U>::DrawGraph(std::ofstream &ofs)
 {
-  GraphVz<T,U> gobject(ofs, edges_vector, weight_vector, -1, false, false);
+  GraphVz<T,U> gobject(ofs, edges_vector, weight_vector, -1, true, false);
 }
 
 

@@ -3,6 +3,28 @@
 #include "GHSNode.h"
 using namespace std::chrono;
 
+void GHSNode::handleConnect()
+{
+  std::vector<std::string> mg = (msg->msg);
+  int q = std::stoi(mg[0]);
+  int l = std::stoi(mg[2]);
+  if(l < level)
+  {
+    stat[q] = "branch";
+    std::vector<std::string> m;
+    m.push_back("initiate");
+    m.push_back(std::to_string(level));
+    m.push_back(name);
+    m.push_back(state);
+    sendMessage(q, msgCreater(m));
+  }
+  else if(stat[q] == "basic")
+  {
+
+  }
+}
+
+
 void GHSNode::messagePrinter()
 {
   if(msg == NULL)
@@ -40,16 +62,14 @@ int GHSNode::findMinEdge()
 
 Message *GHSNode::msgCreater(std::vector<std::string> msg)
 {
-  //std::cerr << "C" << std::endl;
   std::vector<std::string> m;
   m.push_back(std::to_string(nodeid));
   for(auto it : msg)
   {
     m.push_back(it);
   }
-  //std::cerr << "D" << std::endl;
+  
   Message *mg = new Message(m);
-  //std::cerr << "E" << std::endl;
   return mg;
 }
 
@@ -68,16 +88,60 @@ void GHSNode::initialize()
   stat[q] = "branch";
   level = 0;
   state = "found";
-  sendMessage(q, msgCreater({"connect",std::to_string(level)}));
+  rec = 0;
+  std::vector<std::string> st;
+  st.push_back("connect");
+  st.push_back(std::to_string(level));
+  sendMessage(q, msgCreater(st));
 }
 
 void GHSNode::runner()
 {
-  //while(Queue is empty)
-  //{
-  //  wait
-  //}
-  //DoSomething();
+  while(!recieveMessage())
+  {
+    continue;
+  }
+  if((msg->msg).size() < 2)
+  {
+    if((msg->msg).size() == 0)
+    {
+      std::cerr << "Completely Empty Message Sent" << std::endl;
+    }
+    else
+    {
+      std::cerr << "Empty Message Sent from node : " << (msg->msg)[0] << std::endl;
+    }
+    exit(46);
+  }
+  std::string mval = (msg->msg)[1];
+  if(mval == "connect")
+  {
+    handleConnect();
+  }
+  else if(mval == "initiate")
+  {
+    handleInitiate();
+  }
+  else if(mval == "test")
+  {
+    handleTest();
+  }
+  else if(mval == "reject")
+  {
+    handleReject();
+  }
+  else if(mval == "accept")
+  {
+    handleAccept();
+  }
+  else if(mval == "report")
+  {
+    handleReport();
+  }
+  else if(mval == "changeroot")
+  {
+    handleChangeroot();
+  }
 }
 
 void GHSNode::sendMessage(int dest, Message *m)
@@ -100,43 +164,42 @@ bool GHSNode::recieveMessage()
   }
 }
 
+void GHSNode::printNode(std::string id)
+{
+  ofs << "PRINTING requested by process : " << id << std::endl << std::endl;
+  ofs << "Generic Information : " << std::endl << std::endl;
+  ofs << "Nodeid : " << nodeid << std::endl;
+  ofs << "State : " << state << std::endl;
+  ofs << "Name : " << name << std::endl;
+  ofs << "Level : " << level << std::endl;
+  ofs << "hasmst : " << hasmst << std::endl;
+
+  ofs << "\nEdge States : " << std::endl << std::endl;
+
+  for(auto it : stat)
+  {
+    ofs << "Neighbor id : " << it.first << " | Edge State : " << it.second << std::endl;
+  }
+
+  ofs << "\nNode Printing ENDED" << std::endl << std::endl;
+}
+
+
 void GHSNode::run()
 {
 #ifdef Debug
   //std::cerr << "Node id = " << nodeid << " has Thread id = " << pthread_self() << std::endl;
 #endif
 
-  auto start = high_resolution_clock::now();
- 
-  //std::cerr << "A" << std::endl;
+  //auto start = std::chrono::high_resolution_clock::now();
 
-
-  Message *mes = msgCreater({"Hi I am your neighbor with nodeid = " + std::to_string(nodeid)});
-  
-  //std::cerr << "F" << std::endl;
-  
-  sendMessage(1 - nodeid, mes); 
-  
-  //std::cerr << "B" << std::endl;
-  
-  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < nodeid + 2 )
-  {
-    continue;
-  }
-  
-  bool msgRecieved = false;
-
-  while((duration_cast<seconds>(high_resolution_clock::now() - start)).count() < 10 && !msgRecieved)
-  {
-    if(recieveMessage())
-    {
-      messagePrinter();
-      break;
-    }
-    continue;
-  }
-  //initialize();
-  //runner();
+  initialize();
+  //while(!recieveMessage() && duration_cast<seconds>(std::chrono::high_resolution_clock::now() - start).count() < 10)
+  //{
+    //continue;
+  //}
+  //messagePrinter();
+  runner();
 }
 
 

@@ -1,8 +1,10 @@
 CC = g++
 
-CFLAGS = -Wall -DDebug -lpthread 
+CFLAGS = -Wall -Wextra -pedantic -DDebug -lpthread 
 
-all: input_generator input_generate Graph.o GHSNode.o dot_graph.o ghs execute printoutput #drawgraph showgraphs doxygen make_pdf clean
+all: input_generator input_generate Graph.o GHSNode.o dot_graph.o ghs execute printoutput drawgraph showgraphs #doxygen make_pdf clean
+
+main: Graph.o GHSNode.o dot_graph.o ghs execute printoutput drawgraph showgraphs #doxygen make_pdf clean
 
 input_generate: input_generator 
 	./input_generator < generator_input.txt > generator_output.txt
