@@ -309,6 +309,10 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
 
 void GHSNode::initialize()
 {
+  if(nbd_list.empty())
+  {
+    isc->complete = true;
+  }
   for(auto it : nbd_list)
   {
     stat[it.first] = "basic";
