@@ -93,10 +93,6 @@ class GHSNode
 
     bool hasmst; //!< Flag which rep whether the current node has all info to generate MST
     
-    GHSNode *parent; //!< Pointer to combining edge
-    GHSNode *bestNode; //!< Temp Variable
-    GHSNode *testNode; //!< Temp Variable
-    
     Message *msg; //!< Stores the pointer to the most recently recieved message
 
     Graph<int, int>* mst; //!< If hasmst is true, this will be the MST of the global graph, otherwise this is NULL

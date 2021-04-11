@@ -370,6 +370,7 @@ void GHSNode::runner()
   {
     handleChangeroot();
   }
+  runner();
 }
 
 void GHSNode::sendMessage(int dest, Message *m)
