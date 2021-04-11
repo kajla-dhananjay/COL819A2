@@ -81,12 +81,16 @@ class GHSNode
     std::string state; //!< Represents state of the node. Possible states : [ "sleep", "find", "found"]
     std::string name; //!< Represents name of the fragment of which current node is a part of
     std::unordered_map<int, std::string> stat; //!< Represents state of the edge with given neighbor. Possible states : ["basic", "branch", "reject"]
+    std::set<std::pair<int, int> > basic, branch, reject; //!< Set containing (edge_weight, id) of edges in basic, branch and reject state respectively
     std::unordered_map<int, int> nbd_list; //!< Adjacency list rep. of neighbors of current node.
     int nodeid; //!< Nodeid of the current node
     int level; //!< Level of the fragment of which current node is a part of
-    int bestWt; //!< Temp Variable
-    int rec; //!< Temp Variable
-    
+    int best_edge; //!< Temp Variable
+    int best_weight; //!< Temp Variable
+    int test_edge;
+    int find_count;
+    int in_branch;
+
     bool hasmst; //!< Flag which rep whether the current node has all info to generate MST
     
     GHSNode *parent; //!< Pointer to combining edge
@@ -104,12 +108,16 @@ class GHSNode
     void handleConnect();
     void handleInitiate();
     void handleTest();
-    void handleReject();
     void handleAccept();
+    void handleReject();
     void handleReport();
     void handleChangeroot();
 
     /*********************************************/
+
+    void test();
+    void report();
+
 
     void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
     void initialize(); //!< Runs Algorithm 1
