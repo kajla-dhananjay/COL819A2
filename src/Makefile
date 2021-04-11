@@ -4,13 +4,13 @@ CFLAGS = -Wall -Wextra -pedantic -DDebug -lpthread
 
 #all: ghs kruskal documentation
 
-all: execghs execkruskal visualize
+all: execkruskal visualize execghs 
 
-execghs: in.txt ghs 
+execghs: ghs 
 	./ghs < in.txt > out_ghs.txt
 	cat out_ghs.txt
 
-execkruskal: in.txt kruskal
+execkruskal: kruskal
 	./kruskal < in.txt > out_kruskal.txt
 	cat out_kruskal.txt
 

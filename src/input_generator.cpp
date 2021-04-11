@@ -130,7 +130,6 @@ int main()
   std::random_device rand_dev; // Uniformly distributed integer RNG 
   std::mt19937 generator(rand_dev()); // Mersene twister for RNG for a more uniform distribution
   std::uniform_int_distribution<int> dist(0,PRECISION-1); // Distributes over PRECISION uniformly
-  std::uniform_int_distribution<int> distw(1,MAX_WEIGHT); // Distributes over MAX_WEIGHT uniformly
   int N; // Number of Vertices 
   double p; // Probability of an edge
   std::cin >> N >> p;                                                             
@@ -141,6 +140,8 @@ int main()
   e /= 2; // e is the max number of edges possible
 
   int MAX_WEIGHT = 2 * e;
+  
+  std::uniform_int_distribution<int> distw(1,MAX_WEIGHT); // Distributes over MAX_WEIGHT uniformly
 
   if(e > MAX_WEIGHT)
   {

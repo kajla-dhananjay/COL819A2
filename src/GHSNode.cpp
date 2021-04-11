@@ -219,7 +219,7 @@ void GHSNode::changeRoot()
   if(stat[best_edge] == "branch") //!< SE(best-edge) = Branch
   {
     std::vector<std::string> st;
-    st.push_back("changeRoot"); //!< Change-root()
+    st.push_back("changeroot"); //!< Change-root()
     sendMessage(best_edge, msgCreater(st)); //!< send Change-root() on best-edge
   }
   else
@@ -271,18 +271,21 @@ void GHSNode::test()
   }
 }
 
-void GHSNode::messagePrinter()
+void GHSNode::messagePrinter(int dest, Message *msg)
 {
+  ofs << "\nPRINTING MESSGAE\n" << std::endl;
   if(msg == NULL)
   {
     ofs << "No Valid Message Found" << std::endl;
     return;
   }
-  ofs << "MESSAGE from Node : " << msg->msg[0] << std::endl;
+  ofs << "MESSAGE from Node : " << nodeid << std::endl;
+  ofs << "MESSAGE to Node : " << dest << std::endl;
   for(int i = 1; i < (int)((msg->msg).size()); i++)
   {
     ofs << "Row " << i << " : " << (msg->msg)[i] << std::endl;
   }
+  ofs << "\nMESSAGE PRINTED\n" << std::endl;
 }
 
 int GHSNode::findMinEdge()
@@ -384,13 +387,14 @@ void GHSNode::runner()
     }
     else
     {
-      std::cerr << "Message Of Invalid Type" << std::endl;
+      std::cerr << "Message recieved at node : " << nodeid << " from node : " << (msg->msg)[0] << " is invalid with type : " << mval << std::endl;
     }
   }
 }
 
 void GHSNode::sendMessage(int dest, Message *m)
 {
+  messagePrinter(dest,m);
   network->msg_queues[dest].push(m);
 }
 

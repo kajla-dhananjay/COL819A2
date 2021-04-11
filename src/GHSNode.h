@@ -46,10 +46,10 @@ struct Queue
   }
   Message *pop()
   {
-    mut.lock();
+    //mut.lock();
     Message *temp = q.front();
     q.pop();
-    mut.unlock();
+    //mut.unlock();
     return temp;
   }
   bool empty()
@@ -137,7 +137,7 @@ class GHSNode
     
     int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
     Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
-    void messagePrinter(); //!< Prints messages into ofs in a human-friendly way
+    void messagePrinter(int dest, Message *msg); //!< Prints messages into ofs in a human-friendly way
   
   public:
     
