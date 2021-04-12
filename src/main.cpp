@@ -185,6 +185,8 @@ void PrintOutput(std::set<std::tuple<int, int, int> >& out)
 int main()
 {
 
+  auto start = std::chrono::high_resolution_clock::now();
+  
   /********************* Initialization ************************************/
   
   int n = -1,m = -1;
@@ -193,6 +195,7 @@ int main()
   std::unordered_map<int, std::pair<int, int > > mp;
 
   /******************** I/O ************************************************/
+
 
   GraphInput(n,m,edges);
 
@@ -207,5 +210,12 @@ int main()
   std::set<std::tuple<int, int, int> > out = thread_runner(adj_list, mp);
 
   PrintOutput(out);
+
+  auto end = std::chrono::high_resolution_clock::now();
+
+  auto timeval = (std::chrono::duration_cast<std::chrono::seconds>(end - start)).count();
+  
+  std::cerr << "Time used = " << timeval << "seconds" << std::endl;
+
 
 }

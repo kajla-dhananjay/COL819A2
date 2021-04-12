@@ -88,9 +88,7 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
 
 void GHSNode::sendMessage(int dest, Message *m)
 {
-  sentmessagePrinter(dest, m);
   Queue *q = network->getQueue(dest);
-  //std::cout << "Sender id : " << nodeid << " | Destination id : " << dest << " | Destination Address : " << q << std::endl;
   q->push(m);
 }
 
@@ -98,7 +96,6 @@ void GHSNode::sendMessage(int dest, Message *m)
 bool GHSNode::recieveMessage()
 {
   msg = nodequeue->pop();
-  recievedmessagePrinter(msg);
   return (msg != NULL);
 }
 
@@ -537,7 +534,6 @@ GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, 
   this->nodeid = nid;
   this->nbd = neighbors;
   this->network = net;
-  this->ofs.open((std::to_string(nid) + ".txt").c_str());
   this->SN = "sleep";
   this->isc = iscom;
   this->nodequeue = net->getQueue(nid);
