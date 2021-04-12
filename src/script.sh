@@ -5,13 +5,10 @@ while [ $testcase -lt $tot ]
 do
   ((testcase++))
   rm -rf *.txt
-  g++ input_input_generator.cpp -o input_input_generator
   ./input_input_generator > generator_input.txt
   ./input_generator < generator_input.txt > input.txt
   ./kruskal < input.txt > out_kruskal.txt
-  echo "Kruskal Done"
   ./ghs < input.txt > out_ghs.txt
-  echo "GHS Done"
   N=$(cat generator_input.txt | cut -d ' ' -f1) 
   P=$(cat generator_input.txt | cut -d ' ' -f2) 
   DIFF=$(diff out_ghs.txt out_kruskal.txt)

@@ -16,13 +16,13 @@
 class Message
 {
 private:
-  std::vector<std::string> msg;   
+  std::vector<std::string> msg; //!< message content 
 public:
-  Message(std::vector<std::string> m)
+  Message(std::vector<std::string> m) //!< Initiates a message
   {
     msg = m;
   }
-  std::vector<std::string> getMessage()
+  std::vector<std::string> getMessage() //!< returns the message
   {
     return msg;
   }
@@ -34,97 +34,72 @@ public:
 class Queue
 {
 private:
-  std::mutex mut;
-  std::queue<Message *> q;
-  int queueid;
+  std::mutex mut; //!< mutex lock for thread safety
+  std::queue<Message *> q; //!< Message queue
+  int queueid; //!< Id of the node to which this queue belongs
 public:
   Queue()
   {
-    queueid = -1;
+    queueid = -1; //!< Initialized as bad node
   }
   Queue(int qid)
   {
-    queueid = qid;
+    queueid = qid; //!< ID of the queue
   }
   int getqueueid()
   {
-    return queueid;
+    return queueid; //!< returns id for the node which owns this queue
   }
   void push(Message *m)
   {
-    //std::cerr << "Pushing a queue at queueid : " << queueid << std::endl;
-    //pthread_mutex_lock(&mut);
-    mut.lock();
-    //std::cerr << "Entered push lock at queueid : " << queueid << std::endl;
-    q.push(m); //This should be atomic
-    //std::cerr << "Pushed message successfully at queueid : " << queueid << std::endl;
-    //pthread_mutex_unlock(&mut);
-    mut.unlock();
-    //std::cerr << "Exited push lock at queueid : " << queueid << std::endl;
+    mut.lock(); //!< Puts the lock in place
+    q.push(m); //!< This push operation is atomic
+    mut.unlock(); //!< Unlocks the queue
   }
   Message *front()
   {
-    //pthread_mutex_lock(&mut);
-    mut.lock();
+    mut.lock(); //!< Puts the lock in place
     if(q.size() == 0)
     {
-      //pthread_mutex_unlock(&mut);
-      mut.unlock();
-      return NULL;
+      mut.unlock(); //!< Unlocks the queue
+      return NULL; //!< Returns NULL if queue is empty
     }
-    Message *temp = q.front(); //This should be atomic
-    //pthread_mutex_unlock(&mut);
-    mut.unlock();
+    Message *temp = q.front(); //!< This front operation is atomic
+    mut.unlock(); //!< Unlocks the queue
     return temp;
   }
   Message *pop()
   {
-    //std::cerr << "Before pop lock at queueid : " << queueid << std::endl;
-    //pthread_mutex_lock(&mut);
-    mut.lock();
-    //std::cerr << "Locked the lock at queueid : " << queueid << std::endl;
-    //std::cerr << "Size of queue right now : " << q.size() << std::endl;
-    int temp = q.size();
-    if((int)q.size() == 0)
+    mut.lock(); //!< Puts the lock in place
+    int temp = q.size(); //!< Temporary variable to store queue size
+    if(temp == 0)
     {
-      //std::cerr << "Empty queue at queueid : " << queueid << std::endl;
-      //pthread_mutex_unlock(&mut);
-      mut.unlock();
-      //std::cerr << "Unlocked lock at queueid : " << queueid << std::endl;
-      return NULL;
+      mut.unlock(); //!< Unlocks the queue
+      return NULL; //!< Returns NULL if queue is empty
     }
-    Message *tmp = q.front();
-    //std::cerr << "Message extracted at queueid : " << queueid << std::endl;
-    q.pop();
-    if((int)q.size() != temp - 1)
+    Message *tmp = q.front(); //!< Temporary variable to store the front of queue
+    q.pop(); //!< Pops the queue
+    if((int)q.size() != temp - 1) //!< Pop should change the size of queue by 1
     {
-      std::cerr << "QUEUE Error" << std::endl;
+      std::cerr << "QUEUE Error" << std::endl; 
       exit(1);
     }
-    //std::cerr << "poped queue at queueid : " << queueid << std::endl;
-    //std::cerr << "new size of queue is : " << q.size() << std::endl;
-    mut.unlock();
-    //pthread_mutex_unlock(&mut);
-    //std::cerr << "unlocked queue at queueid : " << queueid << std::endl;
+    mut.unlock(); //!< Unlocks the queue
     return tmp;
   }
   bool empty()
   {
-    //pthread_mutex_lock(&mut);
-    mut.lock();
-    int temp = q.size();
-    //pthread_mutex_unlock(&mut);
-    mut.unlock();
-    return (temp == 0);
+    mut.lock(); //!< Puts the lock in place
+    int temp = q.size(); //!< Temporary variable for queue size
+    mut.unlock(); //!< Unlocks the queue
+    return (temp == 0); //!< Returns if queue is empty
   }
   int getQueueSize()
   {
-    //pthread_mutex_lock(&mut);
-    mut.lock();
-    int temp = q.size();
-    mut.unlock();
-    //pthread_mutex_unlock(&mut);
-    return temp;
+    mut.lock(); //!< Puts the lock in place
+    int temp = q.size(); //!< Size of queue
+    mut.unlock(); //!< Unlocks the queue 
+    return temp; //!< returns size of queue
   }
 };
 
@@ -134,33 +109,37 @@ public:
 class Network
 {
 private:
-  std::unordered_map<int, Queue *> msg_queues;
+  std::unordered_map<int, Queue *> msg_queues; //!< Network queues
 public:
-  Network(std::vector<int> nodes)
+  Network(std::vector<int> nodes) //!< Network Constructor 
   {
     for(auto it : nodes)
     {
-      Queue *q = new Queue(it);
-      msg_queues[it] = q;
+      Queue *q = new Queue(it); //!< Initiates a new queue
+      msg_queues[it] = q; //!< Initializes the hashmap
     }
   }
-  Queue *getQueue(int i)
+  Queue *getQueue(int i) //!< Get's the ith queue
   {
     if(msg_queues.find(i) == msg_queues.end())
     {
       std::cerr << "BAD network Request" << std::endl;
     }
-    return msg_queues[i];
+    return msg_queues[i]; //!< Returns the pointer to ith queue
   }
 }
 ;
 
+/** @brief Flags if the algo is complete. 
+ * In a real distributed system one can spread this message via 
+ * rumor mongering, etc.
+ */
 struct IsComplete
 {
-  bool complete;
-  IsComplete()
+  bool complete; //!< If set true, the threads exit
+  IsComplete() //!< Constructor that sets the default value false
   {
-    complete = false;
+    complete = false; 
   }
 };
 
@@ -176,12 +155,7 @@ class GHSNode
     Message *msg; //!< Stores the pointer to the most recently recieved message
     
     Queue *nodequeue;
-
-    Message *prev_msg; //!< Previous message
-    Message *prev_msg1;
     
-    std::ofstream ofs; //!< File Stream to write errors and debug info into
-
     std::set<std::pair<int, int> > basic, branch, reject; //!< Set containing (edge_weight, id) of edges in basic, branch and reject state respectively
     
     int nodeid; //!< Nodeid of the current node
@@ -233,15 +207,12 @@ class GHSNode
     int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
     void changestat(int node, std::string stateval);
     Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)
-    void sentmessagePrinter(int dest, Message *msg); //!< Prints messages into ofs in a human-friendly way
-    void recievedmessagePrinter(Message *msg); //!< Prints messages into ofs in a human-friendly way
   
   public:
     
-    GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom); //!< Constructor to wakeup the node
+    GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom); //!< Constructor to wakeup the node
     void run(); //!< Public Function to let the thread_runner run the GHS node
-    std::vector<int> getMSTEdges();
-    void printNode(std::string id); //!< Prints the node into ofs
+    std::vector<int> getMSTEdges(); //!< Returns all the branch edges
     
 };
 #endif

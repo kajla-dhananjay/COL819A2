@@ -3,26 +3,9 @@
 #include "GHSNode.h"
 using namespace std::chrono;
 
-void GHSNode::tester()
-{
-  if(nodeid == 1)
-  {
-    while(true)
-    {
-      while(!recieveMessage())
-      {
-        continue;
-      }
-      std::vector<std::string> s = msg->getMessage();
-      std::cerr << "Recieved message from node : " << s[0] << " with label : " << s[1] << std::endl;
-    }
-    return;
-  }
-  std::vector<std::string> st;
-  st.push_back("abc");
-  sendMessage(1, msgCreater(st));
-  std::cerr << "Sent message to node : 1 " << std::endl; 
-}
+/** @brief Finds the minimum edge among all basic edges, returns -1 if empty
+ * @return Returns the minimum edge among all basic edges, -1 if empty
+ */
 
 int GHSNode::findMinEdge()
 {
@@ -32,6 +15,11 @@ int GHSNode::findMinEdge()
   }
   return (*basic.begin()).second;
 }
+
+/** @brief Changes the edge state and keeps the sets in sync
+ * @param node : id of the neighbor whose edge state is changing
+ * @param stateval : new state of the neighbor
+ */
 
 void GHSNode::changestat(int node, std::string stateval)
 {
@@ -72,6 +60,11 @@ void GHSNode::changestat(int node, std::string stateval)
   }
 }
 
+/** @brief Creates a new message out of given vector of strings
+ * @param msg Collection of strings consisting of messages
+ * @return Returns message pointer to the new message
+ */
+
 Message *GHSNode::msgCreater(std::vector<std::string> msg)
 {
   std::vector<std::string> m;
@@ -86,12 +79,20 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
   return mg;
 }
 
+/** @brief Sends message to destination node via network
+ * @param dest Destination id for node
+ * @param m Message Pointer to be sent
+ */
+
 void GHSNode::sendMessage(int dest, Message *m)
 {
   Queue *q = network->getQueue(dest);
   q->push(m);
 }
 
+/** @brief Recieves Message from the queue
+ * @return True if queue is non empty, False if queue is empty
+ */
 
 bool GHSNode::recieveMessage()
 {
@@ -99,7 +100,8 @@ bool GHSNode::recieveMessage()
   return (msg != NULL);
 }
 
-
+/** @brief Wakes up a sleeping node
+ */
 
 void GHSNode::wakeup()
 {
@@ -123,10 +125,10 @@ void GHSNode::wakeup()
   st.push_back("connect");
   st.push_back(std::to_string(LN));
   sendMessage(m, msgCreater(st)); //!< send Connect(0) on edge m
-
-  //std::cerr << "Sending connect message : " << nodeid << " - " << m << std::endl;
-  //std::cerr << "Completed wakeup() on node with id : " << nodeid << std::endl;
 }
+
+/** @brief Handles a new connect message
+ */
 
 void GHSNode::handleConnect()
 {
@@ -174,6 +176,9 @@ void GHSNode::handleConnect()
   }
 }
 
+/** @brief Handles a new initiate message
+ */
+
 void GHSNode::handleInitiate()
 {
   std::vector<std::string> mg = msg->getMessage();
@@ -211,6 +216,9 @@ void GHSNode::handleInitiate()
   free(msg);
   msg = NULL;
 }
+
+/** @brief Handles a new test message
+ */
 
 void GHSNode::handleTest()
 {
@@ -255,6 +263,9 @@ void GHSNode::handleTest()
   }
 }
 
+/** @brief Handles a new accept message
+ */
+
 void GHSNode::handleAccept()
 {
   std::vector<std::string> mg = msg->getMessage();
@@ -270,6 +281,9 @@ void GHSNode::handleAccept()
   report(); //!< execute procedure report()
 }
 
+/** @brief Handles a new reject message
+ */
+
 void GHSNode::handleReject()
 {
   std::vector<std::string> mg = msg->getMessage(); 
@@ -282,6 +296,9 @@ void GHSNode::handleReject()
   msg = NULL;
   test(); //!< execute procedure test()
 }
+
+/** @brief Handles a new report message
+ */
 
 void GHSNode::handleReport()
 {
@@ -318,12 +335,19 @@ void GHSNode::handleReport()
   }
 }
 
+/** @brief Handles a new changeroot message
+ */
+
 void GHSNode::handleChangeroot()
 {
   free(msg);
   msg = NULL;
   changeRoot(); //execute procedure change-root()
 }
+
+/** @brief changeRoot() procedure
+ */
+
 
 void GHSNode::changeRoot()
 {
@@ -343,6 +367,9 @@ void GHSNode::changeRoot()
   }
 }
 
+/** @brief report() procedure
+ */
+
 void GHSNode::report()
 {
   if(find_count == 0 && test_edge == -1) //!< if find-count = 0 and test-edge = nil
@@ -354,6 +381,9 @@ void GHSNode::report()
     sendMessage(in_branch,msgCreater(st)); //!< send Report(best-wt) on in-branch
   }
 }
+
+/** @brief test() procedure
+ */
 
 void GHSNode::test()
 {
@@ -373,64 +403,8 @@ void GHSNode::test()
   }
 }
 
-void GHSNode::sentmessagePrinter(int dest, Message *msg)
-{
-  printNode("SEN");
-  if(msg == prev_msg)
-  {
-    return;
-  }
-  else
-  {
-    prev_msg = msg;
-  }
-  ofs << "\nSENDING MESSGAE\n" << std::endl;
-  if(msg == NULL)
-  {
-    ofs << "No Valid Message Found" << std::endl;
-    return;
-  }
-  std::string fromnode = std::to_string(nodeid);
-  std::vector<std::string> mm = msg->getMessage();
-  if(nodeid == dest)
-  {
-    fromnode = mm[0];
-  }
-  ofs << "MESSAGE from Node : " << fromnode << std::endl;
-  ofs << "MESSAGE to Node : " << dest << std::endl;
-  for(int i = 1; i < (int)(mm.size()); i++)
-  {
-    ofs << "Row " << i << " : " << mm[i] << std::endl;
-  }
-  ofs << "\nSENT MESSAGE PRINTED\n" << std::endl;
-}
-  
-void GHSNode::recievedmessagePrinter(Message *msg)
-{
-  printNode("REC");
-  if(msg == prev_msg1)
-  {
-    return;
-  }
-  else
-  {
-    prev_msg1 = msg;
-  }
-  ofs << "\nRECIEVED MESSGAE\n" << std::endl;
-  if(msg == NULL)
-  {
-    ofs << "No Valid Message Found" << std::endl;
-    return;
-  }
-  std::vector<std::string> mm = msg->getMessage();
-  ofs << "MESSAGE from Node : " << mm[0] << std::endl;
-  ofs << "MESSAGE to Node : " << nodeid << std::endl;
-  for(int i = 1; i < (int)(mm.size()); i++)
-  {
-    ofs << "Row " << i << " : " << mm[i] << std::endl;
-  }
-  ofs << "\nRECIEVED MESSAGE PRINTED\n" << std::endl;
-}
+/** @brief runner runs until the GHS Algo is complete, always looking for msgs
+ */
 
 void GHSNode::runner()
 {
@@ -492,25 +466,8 @@ void GHSNode::runner()
   }
 }
 
-void GHSNode::printNode(std::string id)
-{
-  ofs << "PRINTING requested by process : " << id << std::endl << std::endl;
-  ofs << "Generic Information : " << std::endl << std::endl;
-  ofs << "Nodeid : " << nodeid << std::endl;
-  ofs << "State : " << SN << std::endl;
-  ofs << "Name : " << FN << std::endl;
-  ofs << "Level : " << LN << std::endl;
-
-  ofs << "\nEdge States : " << std::endl << std::endl;
-
-  for(auto it : SE)
-  {
-    ofs << "Neighbor id : " << it.first << " | Edge State : " << it.second << std::endl;
-  }
-
-  ofs << "\nNode Printing ENDED" << std::endl << std::endl;
-}
-
+/** @brief Thread starts this method and the algo starts
+ */
 
 void GHSNode::run()
 {
@@ -518,7 +475,10 @@ void GHSNode::run()
   wakeup();
   runner();
 }
-    
+
+/** @brief Returns the branch state edges 
+ */
+
 std::vector<int> GHSNode::getMSTEdges()
 {
   std::vector<int> v;
@@ -529,7 +489,14 @@ std::vector<int> GHSNode::getMSTEdges()
   return v;
 }
 
-GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, IsComplete *iscom)
+/** @brief Constructor for GHSNode
+ * @param nid nodeid
+ * @param neighbors adjacency list for the given node
+ * @param net Network instance used for communication
+ * @param iscom Pointer to Iscomplete struct used to indicate halting 
+ */
+
+GHSNode::GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom)
 {
   this->nodeid = nid;
   this->nbd = neighbors;
@@ -537,6 +504,5 @@ GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, 
   this->SN = "sleep";
   this->isc = iscom;
   this->nodequeue = net->getQueue(nid);
-  //std::cout << "Nodeid : " << nid << " - Address : " << nodequeue << " - Queueid : " << nodequeue->getqueueid() << std::endl;
 }
 

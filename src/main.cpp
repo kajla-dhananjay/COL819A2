@@ -1,5 +1,6 @@
 /** @file main.cpp
- * @brief This file contains the "main" function and does I/O and runs the GHS Algorithm
+ * @brief This file contains the "main" function and does I/O and runs the GHS
+ * Algorithm
  */
 
 #include<bits/stdc++.h>
@@ -13,7 +14,9 @@
 /******************************* Utility Functions ***************************/
 
 /** @brief Given a comma seperated string, this returns a vector of integers
- * @param s Comma seperated string consisting of 3 integers : 2 vertices and 1 edge 
+ * @param s Comma seperated string consisting of 3 integers : 2 vertices and 1 
+ * edge
+ * @return extracts (from node, to node, edge) from string input
  */
 
 std::vector<int> int_extractor(std::string s)
@@ -44,7 +47,7 @@ std::vector<int> int_extractor(std::string s)
 }
 
 
-/******************************* IO Function **********************************/
+/******************************* IO Functions ********************************/
 
 /** @brief Take in the graph as per the assignment statement
  * @param n Number of nodes
@@ -81,9 +84,9 @@ void GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
 
 
 /** @brief Breaks down the input into adjacency list
- * @param n Number of nodes
- * @param m Number of edges
  * @param edges List of edges with their weights
+ * @param adj_list Gives adjacency list for every node
+ * @param mp Maps the unique edges to the inputs given
  */
 
 void ThreadAdjList(std::vector<std::tuple<int, int, int> > &edges, std::map<int, std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
@@ -100,7 +103,7 @@ void ThreadAdjList(std::vector<std::tuple<int, int, int> > &edges, std::map<int,
   return;
 }
 
-/******************************* GHS Runners **********************************/
+/******************************* GHS Runner **********************************/
 
 
 /** @brief Helper Function to start instances of GHSNodes
@@ -115,21 +118,23 @@ void* run_thread(void * node)
 
 /** @brief Starts all GHSNodes on different threads, passes the Final MST Back
  * @param adj_list Adjacency list of the graph
+ * @param mp Mapping from weights to node pairs
+ * @result Set of edges in MST
  */
 
 std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
 {
   int n = adj_list.size(); //!< Number of Nodes
 
-  std::vector<int> no;
+  std::vector<int> no; //!< Set of nodes 
 
   for(auto it : adj_list)
   {
-    no.push_back(it.first);
+    no.push_back(it.first); 
   }
 
-  Network *network = new Network(no);
-  IsComplete *isc = new IsComplete();
+  Network *network = new Network(no); //!< Networks for the threads
+  IsComplete *isc = new IsComplete(); //!< Flag to check completion
 
 
   std::vector<pthread_t> threads(n); //!< Vector of threads
@@ -139,7 +144,7 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
   for(auto it : adj_list)
   {
     GHSNode *temp = new GHSNode(it.first, it.second , network, isc); //!< Create new GHSNode
-    nodes.push_back(temp);
+    nodes.push_back(temp); 
     
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
     
@@ -153,10 +158,11 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
   
   while(!(isc->complete))
   {
+    //threads still running
     continue;
   }
 
-  std::set<std::tuple <int, int, int > > ans;
+  std::set<std::tuple <int, int, int > > ans; //!< MST Edges
   for(auto it : nodes)
   {
     std::vector<int> v = it-> getMSTEdges();
@@ -167,6 +173,10 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
   }
   return ans;
 }
+
+/** @brief Prints output MST in requisite form
+ * @param out output MST edges
+ */
 
 void PrintOutput(std::set<std::tuple<int, int, int> >& out)
 {
@@ -185,7 +195,7 @@ void PrintOutput(std::set<std::tuple<int, int, int> >& out)
 int main()
 {
 
-  auto start = std::chrono::high_resolution_clock::now();
+  //auto start = std::chrono::high_resolution_clock::now();
   
   /********************* Initialization ************************************/
   
@@ -211,11 +221,10 @@ int main()
 
   PrintOutput(out);
 
-  auto end = std::chrono::high_resolution_clock::now();
+  //auto end = std::chrono::high_resolution_clock::now();
 
-  auto timeval = (std::chrono::duration_cast<std::chrono::seconds>(end - start)).count();
+  //auto timeval = (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count();
   
-  std::cerr << "Time used = " << timeval << "seconds" << std::endl;
-
+  //std::cerr << "Time used = " << ((double)timeval)/1000000.0 << " seconds" << std::endl;
 
 }

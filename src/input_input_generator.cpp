@@ -10,5 +10,5 @@ int main()
   int n = distn(generator);
   double p = (double)(distp(generator))/(double)PRECISION;
 
-  std::cout << n << " " << 1 << std::endl;;
+  std::cout << n << " " << p << std::endl;;
 }
