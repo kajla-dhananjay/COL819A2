@@ -163,7 +163,7 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
   }
   //GHS Complete
   
-  std::cout << tot->getTot() << std::endl;
+  std::cout << "Message count : " << tot->getTot() << std::endl;
 
   std::set<std::tuple <int, int, int > > ans; //!< MST Edges
   for(auto it : nodes)
@@ -228,6 +228,6 @@ int main()
 
   auto timeval = (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count();
   
-  //std::cout << ((double)timeval)/1000000.0 << std::endl;
+  std::cout << "Time : " << ((double)timeval)/1000000.0 << std::endl;
 
 }

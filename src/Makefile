@@ -1,6 +1,6 @@
 CC = g++
 
-CFLAGS = -Wall -Wextra -pedantic -lpthread 
+CFLAGS = -Wall -Wextra -DDebug -pedantic -lpthread 
 
 #all: ghs kruskal documentation
 
