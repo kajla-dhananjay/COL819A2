@@ -86,7 +86,10 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
 
 void GHSNode::sendMessage(int dest, Message *m)
 {
-  tot->totInc();
+  if(dest != nodeid)
+  {
+    tot->totInc();
+  }
   Queue *q = network->getQueue(dest);
   q->push(m);
 }
