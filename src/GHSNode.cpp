@@ -86,6 +86,7 @@ Message *GHSNode::msgCreater(std::vector<std::string> msg)
 
 void GHSNode::sendMessage(int dest, Message *m)
 {
+  tot->totInc();
   Queue *q = network->getQueue(dest);
   q->push(m);
 }
@@ -493,10 +494,11 @@ std::vector<int> GHSNode::getMSTEdges()
  * @param nid nodeid
  * @param neighbors adjacency list for the given node
  * @param net Network instance used for communication
- * @param iscom Pointer to Iscomplete struct used to indicate halting 
+ * @param iscom Pointer to Iscomplete struct used to indicate halting
+ * @param tott Pointer to message counter 
  */
 
-GHSNode::GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom)
+GHSNode::GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom, TotMessage *tott)
 {
   this->nodeid = nid;
   this->nbd = neighbors;
@@ -504,5 +506,6 @@ GHSNode::GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net,
   this->SN = "sleep";
   this->isc = iscom;
   this->nodequeue = net->getQueue(nid);
+  this->tot = tott;
 }
 

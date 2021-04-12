@@ -143,6 +143,32 @@ struct IsComplete
   }
 };
 
+
+class TotMessage
+{
+private:
+  std::mutex mut;
+  int tot = 0;
+public:
+  TotMessage()
+  {
+    tot = 0;
+  }
+  void totInc()
+  {
+    mut.lock();
+    tot++;
+    mut.unlock();
+  }
+  int getTot()
+  {
+    mut.lock();
+    int temp = tot;
+    mut.unlock();
+    return temp;
+  }
+};
+
 /** @brief Defines the structure of a single node in GHS Algorithm 
  */ 
 
@@ -153,8 +179,8 @@ class GHSNode
     Network *network; //!< Access point to the global network
     IsComplete *isc; //!< Access point to give halt signal to main thread
     Message *msg; //!< Stores the pointer to the most recently recieved message
-    
-    Queue *nodequeue;
+    TotMessage *tot; //!< Total message counter
+    Queue *nodequeue; //!< Stores the pointer to the queue owned by this node 
     
     std::set<std::pair<int, int> > basic, branch, reject; //!< Set containing (edge_weight, id) of edges in basic, branch and reject state respectively
     
@@ -210,7 +236,7 @@ class GHSNode
   
   public:
     
-    GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom); //!< Constructor to wakeup the node
+    GHSNode(int nid, std::unordered_map<int, int> &neighbors, Network *net, IsComplete *iscom, TotMessage *tott); //!< Constructor to wakeup the node
     void run(); //!< Public Function to let the thread_runner run the GHS node
     std::vector<int> getMSTEdges(); //!< Returns all the branch edges
     

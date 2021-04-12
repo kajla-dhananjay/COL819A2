@@ -135,7 +135,7 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
 
   Network *network = new Network(no); //!< Networks for the threads
   IsComplete *isc = new IsComplete(); //!< Flag to check completion
-
+  TotMessage *tot = new TotMessage(); //!< Total message counter
 
   std::vector<pthread_t> threads(n); //!< Vector of threads
   std::vector<GHSNode *> nodes; //!< Vector of all GHSNodes
@@ -143,7 +143,7 @@ std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered
   int i = 0;
   for(auto it : adj_list)
   {
-    GHSNode *temp = new GHSNode(it.first, it.second , network, isc); //!< Create new GHSNode
+    GHSNode *temp = new GHSNode(it.first, it.second , network, isc, tot); //!< Create new GHSNode
     nodes.push_back(temp); 
     
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
@@ -195,7 +195,7 @@ void PrintOutput(std::set<std::tuple<int, int, int> >& out)
 int main()
 {
 
-  //auto start = std::chrono::high_resolution_clock::now();
+  auto start = std::chrono::high_resolution_clock::now();
   
   /********************* Initialization ************************************/
   
@@ -219,12 +219,12 @@ int main()
   
   std::set<std::tuple<int, int, int> > out = thread_runner(adj_list, mp);
 
-  PrintOutput(out);
+  //PrintOutput(out);
 
-  //auto end = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
 
-  //auto timeval = (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count();
+  auto timeval = (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count();
   
-  //std::cerr << "Time used = " << ((double)timeval)/1000000.0 << " seconds" << std::endl;
+  std::cout << ((double)timeval)/1000000.0 << std::endl;
 
 }
