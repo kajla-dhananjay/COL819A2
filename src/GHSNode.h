@@ -1,5 +1,4 @@
 #include<bits/stdc++.h>
-#include "Graph.h"
 
 /** @file GHSNode.h
  * Header File for GHSNodes
