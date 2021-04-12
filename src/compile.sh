@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -lpthread main.cpp GHSNode.cpp GHSNode.h -o ghs
+g++ -Wall -Wextra -pedantic -lpthread main.cpp GHSNode.cpp GHSNode.h -o ghs
