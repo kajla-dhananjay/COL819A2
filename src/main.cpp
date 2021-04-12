@@ -196,6 +196,8 @@ int main()
 
   GraphInput(n,m,edges);
 
+  if(n < 2){exit(0);}
+
   /******************** FormatChanges **************************************/
 
   ThreadAdjList(edges, adj_list, mp);

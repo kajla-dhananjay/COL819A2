@@ -439,7 +439,6 @@ void GHSNode::runner()
 {
   while(!(isc->complete))
   {
-    //std::cerr << "Node with nodeid : " << nodeid << " waiting for a message from queue at " << nodequeue << std::endl;
     while(!recieveMessage())
     {
       continue;
