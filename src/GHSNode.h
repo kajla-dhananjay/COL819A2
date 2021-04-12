@@ -34,7 +34,7 @@ public:
 class Queue
 {
 private:
-  pthread_mutex_t mut;
+  std::mutex mut;
   std::queue<Message *> q;
   int queueid;
 public:
@@ -53,36 +53,43 @@ public:
   void push(Message *m)
   {
     //std::cerr << "Pushing a queue at queueid : " << queueid << std::endl;
-    pthread_mutex_lock(&mut);
+    //pthread_mutex_lock(&mut);
+    mut.lock();
     //std::cerr << "Entered push lock at queueid : " << queueid << std::endl;
     q.push(m); //This should be atomic
     //std::cerr << "Pushed message successfully at queueid : " << queueid << std::endl;
-    pthread_mutex_unlock(&mut);
+    //pthread_mutex_unlock(&mut);
+    mut.unlock();
     //std::cerr << "Exited push lock at queueid : " << queueid << std::endl;
   }
   Message *front()
   {
-    pthread_mutex_lock(&mut);
+    //pthread_mutex_lock(&mut);
+    mut.lock();
     if(q.size() == 0)
     {
-      pthread_mutex_unlock(&mut);
+      //pthread_mutex_unlock(&mut);
+      mut.unlock();
       return NULL;
     }
     Message *temp = q.front(); //This should be atomic
-    pthread_mutex_unlock(&mut);
+    //pthread_mutex_unlock(&mut);
+    mut.unlock();
     return temp;
   }
   Message *pop()
   {
     //std::cerr << "Before pop lock at queueid : " << queueid << std::endl;
-    pthread_mutex_lock(&mut);
+    //pthread_mutex_lock(&mut);
+    mut.lock();
     //std::cerr << "Locked the lock at queueid : " << queueid << std::endl;
     //std::cerr << "Size of queue right now : " << q.size() << std::endl;
     int temp = q.size();
     if((int)q.size() == 0)
     {
       //std::cerr << "Empty queue at queueid : " << queueid << std::endl;
-      pthread_mutex_unlock(&mut);
+      //pthread_mutex_unlock(&mut);
+      mut.unlock();
       //std::cerr << "Unlocked lock at queueid : " << queueid << std::endl;
       return NULL;
     }
@@ -96,22 +103,27 @@ public:
     }
     //std::cerr << "poped queue at queueid : " << queueid << std::endl;
     //std::cerr << "new size of queue is : " << q.size() << std::endl;
-    pthread_mutex_unlock(&mut);
+    mut.unlock();
+    //pthread_mutex_unlock(&mut);
     //std::cerr << "unlocked queue at queueid : " << queueid << std::endl;
     return tmp;
   }
   bool empty()
   {
-    pthread_mutex_lock(&mut);
+    //pthread_mutex_lock(&mut);
+    mut.lock();
     int temp = q.size();
-    pthread_mutex_unlock(&mut);
+    //pthread_mutex_unlock(&mut);
+    mut.unlock();
     return (temp == 0);
   }
   int getQueueSize()
   {
-    pthread_mutex_lock(&mut);
+    //pthread_mutex_lock(&mut);
+    mut.lock();
     int temp = q.size();
-    pthread_mutex_unlock(&mut);
+    mut.unlock();
+    //pthread_mutex_unlock(&mut);
     return temp;
   }
 };
