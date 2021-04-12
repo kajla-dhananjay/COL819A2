@@ -86,9 +86,8 @@ void GraphInput(int &n, int &m, std::vector<std::tuple<int, int, int> > &edges)
  * @param edges List of edges with their weights
  */
 
-void ThreadAdjList(int n, std::vector<std::tuple<int, int, int> > &edges, std::vector<std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
+void ThreadAdjList(std::vector<std::tuple<int, int, int> > &edges, std::map<int, std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
 {
-  adj_list.resize(n);
   for(auto it : edges)
   {
     int node1 = std::get<0>(it);
@@ -118,20 +117,28 @@ void* run_thread(void * node)
  * @param adj_list Adjacency list of the graph
  */
 
-std::set<std::tuple <int, int, int> > thread_runner(std::vector<std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
+std::set<std::tuple <int, int, int> > thread_runner(std::map<int, std::unordered_map<int, int> > &adj_list, std::unordered_map<int, std::pair<int, int> > &mp)
 {
   int n = adj_list.size(); //!< Number of Nodes
 
-  Network *network = new Network();
+  std::vector<int> no;
+
+  for(auto it : adj_list)
+  {
+    no.push_back(it.first);
+  }
+
+  Network *network = new Network(no);
   IsComplete *isc = new IsComplete();
 
 
   std::vector<pthread_t> threads(n); //!< Vector of threads
   std::vector<GHSNode *> nodes; //!< Vector of all GHSNodes
-
-  for(int i = 0; i < n; i++)
+  
+  int i = 0;
+  for(auto it : adj_list)
   {
-    GHSNode *temp = new GHSNode(i,adj_list[i],network,isc); //!< Create new GHSNode
+    GHSNode *temp = new GHSNode(it.first, it.second , network, isc); //!< Create new GHSNode
     nodes.push_back(temp);
     
     int errcode = pthread_create(&(threads[i]), NULL, run_thread, (void *)temp); //!< Start the thread, if errcode != 0 then thread creation was not successful
@@ -141,10 +148,9 @@ std::set<std::tuple <int, int, int> > thread_runner(std::vector<std::unordered_m
       std::cerr << "Thread Creation at index : " << i << " Failed.\n Exiting.... " << std::endl;
       exit(49);
     }
+    i++;
   }
   
-  std::vector<void *> exitStat(n);
-
   while(!(isc->complete))
   {
     continue;
@@ -183,7 +189,7 @@ int main()
   
   int n = -1,m = -1;
   std::vector<std::tuple<int, int, int> > edges;
-  std::vector<std::unordered_map<int, int> > adj_list;
+  std::map<int, std::unordered_map<int, int> > adj_list;
   std::unordered_map<int, std::pair<int, int > > mp;
 
   /******************** I/O ************************************************/
@@ -192,7 +198,7 @@ int main()
 
   /******************** FormatChanges **************************************/
 
-  ThreadAdjList(n, edges, adj_list, mp);
+  ThreadAdjList(edges, adj_list, mp);
 
   /******************** Run GHS ********************************************/
   
@@ -200,4 +206,4 @@ int main()
 
   PrintOutput(out);
 
- }
+}
