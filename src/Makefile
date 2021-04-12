@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -pedantic -DDebug -lpthread
 
 #all: ghs kruskal documentation
 
-all: input execkruskal visualize execghs 
+all: input execkruskal execghs 
 
 input: in.txt
 

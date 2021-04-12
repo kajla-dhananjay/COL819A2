@@ -36,22 +36,34 @@ class Queue
 private:
   pthread_mutex_t mut;
   std::queue<Message *> q;
-  int queue_size;
+  int queueid;
 public:
   Queue()
   {
-    queue_size = 0;
+    queueid = -1;
+  }
+  Queue(int qid)
+  {
+    queueid = qid;
+  }
+  int getqueueid()
+  {
+    return queueid;
   }
   void push(Message *m)
   {
+    //std::cerr << "Pushing a queue at queueid : " << queueid << std::endl;
     pthread_mutex_lock(&mut);
+    //std::cerr << "Entered push lock at queueid : " << queueid << std::endl;
     q.push(m); //This should be atomic
+    //std::cerr << "Pushed message successfully at queueid : " << queueid << std::endl;
     pthread_mutex_unlock(&mut);
+    //std::cerr << "Exited push lock at queueid : " << queueid << std::endl;
   }
   Message *front()
   {
     pthread_mutex_lock(&mut);
-    if(queue_size == 0)
+    if(q.size() == 0)
     {
       pthread_mutex_unlock(&mut);
       return NULL;
@@ -62,28 +74,43 @@ public:
   }
   Message *pop()
   {
+    //std::cerr << "Before pop lock at queueid : " << queueid << std::endl;
     pthread_mutex_lock(&mut);
-    if(queue_size == 0)
+    //std::cerr << "Locked the lock at queueid : " << queueid << std::endl;
+    //std::cerr << "Size of queue right now : " << q.size() << std::endl;
+    int temp = q.size();
+    if((int)q.size() == 0)
     {
+      //std::cerr << "Empty queue at queueid : " << queueid << std::endl;
       pthread_mutex_unlock(&mut);
+      //std::cerr << "Unlocked lock at queueid : " << queueid << std::endl;
       return NULL;
     }
-    Message *temp = q.front();
+    Message *tmp = q.front();
+    //std::cerr << "Message extracted at queueid : " << queueid << std::endl;
     q.pop();
+    if((int)q.size() != temp - 1)
+    {
+      std::cerr << "QUEUE Error" << std::endl;
+      exit(1);
+    }
+    //std::cerr << "poped queue at queueid : " << queueid << std::endl;
+    //std::cerr << "new size of queue is : " << q.size() << std::endl;
     pthread_mutex_unlock(&mut);
-    return temp;
+    //std::cerr << "unlocked queue at queueid : " << queueid << std::endl;
+    return tmp;
   }
   bool empty()
   {
     pthread_mutex_lock(&mut);
-    int temp = queue_size;
+    int temp = q.size();
     pthread_mutex_unlock(&mut);
     return (temp == 0);
   }
   int getQueueSize()
   {
     pthread_mutex_lock(&mut);
-    int temp = queue_size;
+    int temp = q.size();
     pthread_mutex_unlock(&mut);
     return temp;
   }
@@ -101,7 +128,7 @@ public:
   {
     for(auto it : nodes)
     {
-      Queue *q = new Queue();
+      Queue *q = new Queue(it);
       msg_queues[it] = q;
     }
   }
@@ -188,7 +215,9 @@ class GHSNode
     bool recieveMessage(); //!< Checks to see if there is a message, if there is none, returns false, if there is a message, stores the message into msg.
   
     /********************************************/
-    
+   
+    void tester();
+
     int findMinEdge(); //!< Finds the neighbor which has the minimum edge weight with current node among all "basic" neighbors
     void changestat(int node, std::string stateval);
     Message *msgCreater(std::vector<std::string> msg); //!< Creates a message for given string vector by adding header info (nodeid)

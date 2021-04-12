@@ -1,6 +1,6 @@
 #!/bin/bash
 testcase=0
-tot=9
+tot=1
 while [ $testcase -lt $tot ]
 do
   rm -rf *.txt

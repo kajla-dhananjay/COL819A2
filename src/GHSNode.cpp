@@ -3,6 +3,27 @@
 #include "GHSNode.h"
 using namespace std::chrono;
 
+void GHSNode::tester()
+{
+  if(nodeid == 1)
+  {
+    while(true)
+    {
+      while(!recieveMessage())
+      {
+        continue;
+      }
+      std::vector<std::string> s = msg->getMessage();
+      std::cerr << "Recieved message from node : " << s[0] << " with label : " << s[1] << std::endl;
+    }
+    return;
+  }
+  std::vector<std::string> st;
+  st.push_back("abc");
+  sendMessage(1, msgCreater(st));
+  std::cerr << "Sent message to node : 1 " << std::endl; 
+}
+
 int GHSNode::findMinEdge()
 {
   if(basic.empty())
@@ -69,7 +90,7 @@ void GHSNode::sendMessage(int dest, Message *m)
 {
   sentmessagePrinter(dest, m);
   Queue *q = network->getQueue(dest);
-  std::cerr << "Node id : " << nodeid << " sending message to node with id : " << dest << " with queue at address : " << m << std::endl;
+  //std::cout << "Sender id : " << nodeid << " | Destination id : " << dest << " | Destination Address : " << q << std::endl;
   q->push(m);
 }
 
@@ -104,8 +125,10 @@ void GHSNode::wakeup()
   std::vector<std::string> st;
   st.push_back("connect");
   st.push_back(std::to_string(LN));
-  sendMessage(m, msgCreater(st)); //!< send Connect(0) on edge m 
-  std::cerr << "Completed wakeup() on node with id : " << nodeid << std::endl;
+  sendMessage(m, msgCreater(st)); //!< send Connect(0) on edge m
+
+  //std::cerr << "Sending connect message : " << nodeid << " - " << m << std::endl;
+  //std::cerr << "Completed wakeup() on node with id : " << nodeid << std::endl;
 }
 
 void GHSNode::handleConnect()
@@ -416,12 +439,12 @@ void GHSNode::runner()
 {
   while(!(isc->complete))
   {
-    std::cerr << "Node with nodeid : " << nodeid << " waiting for a message from queue at " << nodequeue << std::endl;
+    //std::cerr << "Node with nodeid : " << nodeid << " waiting for a message from queue at " << nodequeue << std::endl;
     while(!recieveMessage())
     {
       continue;
     }
-    std::cerr << "Node with nodeid : " << nodeid << " recieved a message." << std::endl;
+    //std::cerr << "Node with nodeid : " << nodeid << " recieved a message." << std::endl;
     std::vector<std::string> mm = msg->getMessage();
     if(mm.size() < 2)
     {
@@ -437,7 +460,7 @@ void GHSNode::runner()
     }
     
     std::string mval = mm[1];
-    std::cerr << "Node with nodeid : " << nodeid << " recieved a message from : " << mm[0] << " of type : " << mm[1] << std::endl;
+    //std::cerr << "Node with nodeid : " << nodeid << " recieved a message from : " << mm[0] << " of type : " << mm[1] << std::endl;
     if(mval == "connect")
     {
       handleConnect();
@@ -495,9 +518,8 @@ void GHSNode::printNode(std::string id)
 
 void GHSNode::run()
 {
-  std::cerr << "Started run() on node with id : " << nodeid << std::endl;
+  //tester();
   wakeup();
-  std::cerr << "Starting runner() on node with id : " << nodeid << std::endl;
   runner();
 }
     
@@ -520,6 +542,6 @@ GHSNode::GHSNode(int nid, std::unordered_map<int, int> neighbors, Network *net, 
   this->SN = "sleep";
   this->isc = iscom;
   this->nodequeue = net->getQueue(nid);
-  std::cerr << "Queue for nodeid : " << nid << " is at address : " << nodequeue << std::endl;
+  //std::cout << "Nodeid : " << nid << " - Address : " << nodequeue << " - Queueid : " << nodequeue->getqueueid() << std::endl;
 }
 
