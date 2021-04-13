@@ -195,8 +195,6 @@ void PrintOutput(std::set<std::tuple<int, int, int> >& out)
 int main()
 {
 
-  //auto start = std::chrono::high_resolution_clock::now();
-  
   /********************* Initialization ************************************/
   
   int n = -1,m = -1;
@@ -220,11 +218,5 @@ int main()
   std::set<std::tuple<int, int, int> > out = thread_runner(adj_list, mp);
 
   PrintOutput(out);
-
-  //auto end = std::chrono::high_resolution_clock::now();
-
-  //auto timeval = (std::chrono::duration_cast<std::chrono::microseconds>(end - start)).count();
-  
-  //std::cerr << "Time used = " << ((double)timeval)/1000000.0 << " seconds" << std::endl;
 
 }
