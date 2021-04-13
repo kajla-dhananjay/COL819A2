@@ -154,7 +154,6 @@ int main()
 #ifdef Debug
   std::cerr << "Total Nodes : "<< N << std::endl;
 #endif
-  int edge_count = 0; // Total edges in the graph
   std::set<int> edge_weights; // Set of weights of edges in the graph
   std::vector<std::tuple<int, int, int> > edges; // Edges of the graph
   std::vector<std::set<int> > adj_list(N); // Adjacency Matrix of the graph
