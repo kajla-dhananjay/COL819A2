@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.4.9)  13 APR 2021 12:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.4.9)  13 APR 2021 21:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -985,29 +985,28 @@ Underfull \hbox (badness 10000) in paragraph at lines 1037--1038
  []
 
 [21]
-<time.png, id=795, 433.62pt x 289.08pt>
-File: time.png Graphic file (type png)
-<use time.png>
-Package pdftex.def Info: time.png  used on input line 1129.
-(pdftex.def)             Requested size: 433.61894pt x 289.07928pt.
-<sparse.png, id=797, 462.528pt x 346.896pt>
+<sparse.png, id=795, 462.528pt x 346.896pt>
 File: sparse.png Graphic file (type png)
 <use sparse.png>
-Package pdftex.def Info: sparse.png  used on input line 1135.
+Package pdftex.def Info: sparse.png  used on input line 1131.
 (pdftex.def)             Requested size: 379.41585pt x 284.5783pt.
- [22 <./time.png>]
-<dense.png, id=803, 462.528pt x 346.896pt>
+<dense.png, id=797, 462.528pt x 346.896pt>
 File: dense.png Graphic file (type png)
 <use dense.png>
-Package pdftex.def Info: dense.png  used on input line 1137.
+Package pdftex.def Info: dense.png  used on input line 1133.
 (pdftex.def)             Requested size: 379.41585pt x 284.5783pt.
- [23 <./sparse.png> <./dense.png>]
+ [22 <./sparse.png>]
 
 Package amsmath Warning: Foreign command \atopwithdelims;
 (amsmath)                \frac or \genfrac should be used instead
-(amsmath)                 on input line 1144.
+(amsmath)                 on input line 1139.
 
-[24] (./2017CS50405_2017CS50421_report.aux)
+<time.png, id=803, 433.62pt x 289.08pt>
+File: time.png Graphic file (type png)
+<use time.png>
+Package pdftex.def Info: time.png  used on input line 1160.
+(pdftex.def)             Requested size: 433.61894pt x 289.07928pt.
+[23 <./dense.png>] [24 <./time.png>] (./2017CS50405_2017CS50421_report.aux)
 Package rerunfilecheck Info: File `2017CS50405_2017CS50421_report.out' has not 
 changed.
 (rerunfilecheck)             Checksum: DF5E80BB862558D71111FE4749418DA4;1872.
@@ -1015,7 +1014,7 @@ changed.
 Here is how much of TeX's memory you used:
  22296 strings out of 479383
  394140 string characters out of 5875831
- 1173667 words of memory out of 5000000
+ 1173726 words of memory out of 5000000
  38398 multiletter control sequences out of 15000+600000
  415166 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1032,7 +1031,7 @@ nts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb>
 </usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/te
 xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf-dist/
 fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on 2017CS50405_2017CS50421_report.pdf (24 pages, 296133 bytes).
+Output written on 2017CS50405_2017CS50421_report.pdf (24 pages, 300199 bytes).
 PDF statistics:
  983 PDF objects out of 1000 (max. 8388607)
  928 compressed objects within 10 object streams

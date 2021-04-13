@@ -92,7 +92,7 @@
  		\item {\sc Test} : Tests to check whether an edge belongs to the MST
  		\item {\sc Accept} : Communicates to the neighbor that the received edge tested is accepted into the MST
  		\item {\sc Reject} : Communicates to the neighbor that the received edge cannot possibly be in the MST
- 		\item {\sc Report} : Reports the best weight outgoing fragment for each node 
+ 		\item {\sc Report} : Reports the best weight outgoing fragment for each node So by this plot we can say that time is bounded by number of messages sent
  		\item {\sc ChangeRoot} : The root node of the fragment is shifted to the node with the minimal outgoing edge
  	\end{itemize}
  
@@ -1124,10 +1124,6 @@
 		\end{tabular}
 	\end{center} 
 	
-	Plot for the above data : 
-	
-	\includegraphics{time}
-	
 	\subsection{Complexity Analysis}
 	
 	Plots for the results on number of messages as given in the previous section are as follows : 
@@ -1136,7 +1132,6 @@
 	
 	\includegraphics[width = 0.7 \textwidth]{dense}
 	
-	\newpage 
 	
 	In these plots 
 	\begin{itemize}
@@ -1152,4 +1147,15 @@
 		\item The blue line is therefore a tight upper bound on the total number of messages in GHS Algorithm. 
 		\item Therefore the total number of messages sent in the GHS Algorithm grows as $2 \cdot E + 5 \cdot N \cdot \log_2(N)$
 	\end{itemize}
+
+	{\bf Running Time} :
+	\begin{itemize}
+		\item Plot for running time is shown on the next page.
+		\item Running time seems to increase in proportion to the number of messages sent.
+		\item Analysis of this runtime would need to account for various multi-threading overheads, mutex locks, cpu thread capacity, etc.. 
+		\item However in a very broad sense, as seen by the plot, communication between nodes seems to be a bottleneck for our implementation.
+	\end{itemize}
+
+
+	\includegraphics{time}
 \end{document}
